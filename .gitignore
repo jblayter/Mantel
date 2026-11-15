@@ -1,0 +1,14 @@
+# Machine-specific: points at a local SDK install.
+local.properties
+
+# Build outputs and caches.
+build/
+.gradle/
+.kotlin/
+.cxx/
+captures/
+
+# IDE
+.idea/
+*.iml
+.DS_Store
