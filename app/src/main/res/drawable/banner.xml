@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Placeholder launcher banner (320x180): one amber hex cell on the walnut
+     ground. Not designed yet; replace when the owner approves real art. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path
+        android:fillColor="#2B1E15"
+        android:pathData="M0,0h320v180h-320z" />
+    <path
+        android:fillColor="#8F5F1F"
+        android:pathData="M108,90 L160,120 L212,90 L212,120 L160,150 L108,120z" />
+    <path
+        android:strokeColor="#F0B45A"
+        android:strokeWidth="6"
+        android:strokeLineJoin="round"
+        android:pathData="M160,30 L212,60 L212,120 L160,150 L108,120 L108,60z" />
+</vector>

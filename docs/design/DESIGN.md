@@ -40,6 +40,7 @@ All colors are in `tokens.json`. Roles:
 | Text bright | `#FFF8EA` | Key numbers |
 | Text secondary | `#EADFCB` | Supporting lines |
 | Text muted | `#D2C0A6` | Labels, captions |
+| Text soft | `#E0D3BD` | Unselected chip label, memory line in a cell |
 | Text dim | `#AD9D87` | Ended / inactive |
 | Amber | `#F0B45A` | Accent: wordmark, chart lines, in-progress, selected chip |
 | Runner | `#93BBD0` | Kind: long-lived CI runners (dusty slate blue) |
@@ -102,7 +103,8 @@ cell, where 20–23px labels sit under a 52px number.
   do not reshuffle on every sample). Missing runners are pinned first, ended
   containers last. Sort chips: Busiest, Memory, Name.
 
-Each cell, top to bottom: kind and uptime (`RUNNER · 4 min`), cores in use
+Each cell, top to bottom: kind and uptime in short units (`RUNNER · 4m`,
+`DATABASE · 6d`; the long form does not fit the cell), cores in use
 (`cpu_percent / 100`, one decimal, display-l), short name, memory.
 
 Cell states:
