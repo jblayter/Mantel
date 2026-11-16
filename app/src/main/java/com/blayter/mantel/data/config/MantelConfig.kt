@@ -38,7 +38,7 @@ sealed interface ConfigParseResult {
  *     {
  *       "glancesUrl": "http://192.168.6.35:61208",
  *       "githubToken": "github_pat_...",
- *       "repos": ["Factory55/RxFlow"]
+ *       "repos": ["example-org/RxFlow"]
  *     }
  *
  * `githubToken` and `repos` go together and are both optional; without them

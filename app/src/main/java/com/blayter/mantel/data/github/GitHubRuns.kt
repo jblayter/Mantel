@@ -129,7 +129,7 @@ object GitHubRuns {
         )
     }
 
-    /** `Factory55/RxFlow` is "rxflow" on the card, as in the mockup. */
+    /** `example-org/RxFlow` is "rxflow" on the card, as in the mockup. */
     fun shortRepo(repo: String): String = repo.substringAfter('/').lowercase()
 
     private fun between(from: Instant, to: Instant): Duration =

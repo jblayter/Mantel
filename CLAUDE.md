@@ -75,7 +75,7 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 - `mantel-config.json` at the repo root is gitignored and may hold the owner's
   GitHub token. Never read, print or push it; the owner pushes it themselves.
 - If the TV cannot encrypt, the token is not stored and the deploys card says so.
-- Deploys: every workflow of `Factory55/RxFlow`, last 7 days, three rows,
+- Deploys: every workflow of the repositories in the config, last 7 days, three rows,
   running first. Skipped and cancelled runs are hidden (cancelled is my
   assumption). The progress bar is elapsed time over the median of that
   workflow's recent successful runs, capped at 95%.
