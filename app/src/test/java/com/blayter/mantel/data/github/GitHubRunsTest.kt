@@ -49,7 +49,22 @@ class GitHubRunsTest {
 
     @Test
     fun showsRunningFirstThenNewestAndHidesSkipped() {
-        assertEquals(listOf(7L, 6L, 4L), GitHubRuns.shown(runs, now).map { it.id })
+        assertEquals(listOf(7L, 6L, 4L, 3L), GitHubRuns.shown(runs, now).map { it.id })
+    }
+
+    @Test
+    fun keepsEveryRunOfTheLastHourAndFourPerRepository() {
+        fun finished(id: Long, repo: String, minutesAgo: Long) = WorkflowRun(
+            id, repo, 1, "CI", "Fix", "main", "completed", "success",
+            startedAt = now.minusSeconds(minutesAgo * 60 + 120), updatedAt = now.minusSeconds(minutesAgo * 60),
+        )
+        val busy = (1L..6L).map { finished(it, "a/busy", minutesAgo = it * 5) }
+        val quiet = (11L..16L).map { finished(it, "a/quiet", minutesAgo = it * 60) }
+        val shown = GitHubRuns.shown(quiet.take(3) + busy + quiet.drop(3), now)
+        assertEquals("repositories in the order asked for, newest first", listOf(11L, 12L, 13L, 14L, 1L, 2L, 3L, 4L, 5L, 6L), shown.map { it.id })
+
+        val flood = (1L..20L).map { finished(it, "a/busy", minutesAgo = it) }
+        assertEquals(GitHubRuns.MAX_PER_REPOSITORY, GitHubRuns.shown(flood, now).size)
     }
 
     @Test
@@ -105,7 +120,7 @@ class GitHubRunsTest {
             asked += url
             if ("/jobs" in url) """{"jobs":[]}""" else reply
         }
-        assertEquals(3, source.recentRuns().size)
+        assertEquals(4, source.recentRuns().size)
         clock = clock.plusSeconds(10)
         val ticking = source.recentRuns().first().outcome as DeployOutcome.InProgress
         assertEquals("the timer moves between fetches", 130.seconds, ticking.elapsed)

@@ -13,6 +13,8 @@ import kotlin.math.min
 import kotlin.math.sin
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -92,46 +94,59 @@ class MockHostSource(private val elapsed: () -> Duration, private val random: Ra
 }
 
 /**
- * Stands in for the GitHub Actions client with the mockup's invented runs. The
- * rxflow deploy counts up, finishes, rests for a minute and goes out again.
+ * Stands in for the GitHub Actions client with the mockup's invented runs, on
+ * a loop that shows both states of the deploys card. It opens as the mockup
+ * does, with the rxflow deploy going out and two other repositories busy in
+ * the last hour. The deploy finishes, and for the last part of the loop the
+ * mock pretends hours have gone by, so the card falls back to the maintenance
+ * window. Then it starts again.
  */
 class MockDeploySource(private val elapsed: () -> Duration) : DeploySource {
     override suspend fun recentRuns(): List<DeployRun> {
         val t = elapsed()
-        val sinceFirstStart = t + ALREADY_RUNNING
-        val cycle = (sinceFirstStart / CYCLE).toInt()
-        val into = sinceFirstStart - CYCLE * cycle
-        fun rxflow(cycleIndex: Int, outcome: DeployOutcome) =
-            DeployRun("rxflow", "Deploy production", COMMITS[cycleIndex % COMMITS.size], "main", outcome)
+        val loop = (t / LOOP).toInt()
+        val into = t - LOOP * loop
+        val commit = COMMITS[loop % COMMITS.size]
+        val running = into + ALREADY_RUNNING
+        // In the quiet part every age is this much older.
+        val aged = if (into >= QUIET_FROM) QUIET_AGE else Duration.ZERO
+        fun passed(repo: String, workflow: String, title: String, took: Duration, ago: Duration) =
+            DeployRun(repo, workflow, title, "main", DeployOutcome.Passed(took, ago + into + aged))
+        fun failed(repo: String, workflow: String, title: String, step: String, ago: Duration) =
+            DeployRun(repo, workflow, title, "main", DeployOutcome.Failed(step, ago + into + aged))
 
-        return buildList {
-            if (into < RUN_LENGTH) {
-                add(rxflow(cycle, DeployOutcome.InProgress(into, (into / RUN_LENGTH).toFloat())))
-                if (cycle > 0) add(rxflow(cycle - 1, DeployOutcome.Passed(RUN_LENGTH, into + CYCLE - RUN_LENGTH)))
+        return listOf(
+            if (running < RUN_LENGTH) {
+                DeployRun("rxflow", "Deploy production", commit, "main", DeployOutcome.InProgress(running, (running / RUN_LENGTH).toFloat()))
             } else {
-                add(rxflow(cycle, DeployOutcome.Passed(RUN_LENGTH, into - RUN_LENGTH)))
-            }
-            add(
-                DeployRun(
-                    "reach", "Deploy production", "Fix hydration mismatch", "main",
-                    DeployOutcome.Failed(failedStep = "e2e-tests", ago = 6.minutes + t),
-                ),
-            )
-            add(
-                DeployRun(
-                    "krakentv", "CI", "Add channel guide cache", "main",
-                    DeployOutcome.Passed(took = 2.minutes + 8.seconds, ago = 18.minutes + t),
-                ),
-            )
-        }.take(MAX_RUNS)
+                DeployRun("rxflow", "Deploy production", commit, "main", DeployOutcome.Passed(RUN_LENGTH, running - RUN_LENGTH + aged))
+            },
+            passed("rxflow", "CI", commit, 4.minutes + 41.seconds, 9.minutes),
+            passed("rxflow", "CI", "Drop unused job indexes", 4.minutes + 36.seconds, 47.minutes),
+            failed("rxflow", "Nightly integration", "Drop unused job indexes", "integration", 9.hours),
+            passed("rxflow", "Deploy production", "Drop unused job indexes", 5.minutes + 2.seconds, 1.days),
+
+            failed("reach", "Deploy production", "Fix hydration mismatch", "e2e-tests", 6.minutes),
+            passed("reach", "CI", "Fix hydration mismatch", 3.minutes + 15.seconds, 14.minutes),
+            passed("reach", "Deploy production", "Lazy-load the map tiles", 6.minutes + 20.seconds, 2.days),
+            passed("reach", "CI", "Lazy-load the map tiles", 3.minutes + 9.seconds, 2.days),
+
+            passed("krakentv", "CI", "Add channel guide cache", 2.minutes + 8.seconds, 18.minutes),
+            passed("krakentv", "Release", "Version 1.4", 7.minutes + 30.seconds, 3.days),
+            passed("krakentv", "CI", "Version 1.4", 2.minutes + 11.seconds, 3.days),
+            failed("krakentv", "CI", "Rework the focus ring", "lint", 5.days),
+        )
     }
 
     private companion object {
         /** The mockup opens with the deploy at 3:12, 64% of the way through. */
         val ALREADY_RUNNING = 3.minutes + 12.seconds
         val RUN_LENGTH = 5.minutes
-        val CYCLE = 6.minutes
-        const val MAX_RUNS = 3
+
+        /** Active until here, quiet from here to the end of the loop. */
+        val QUIET_FROM = 3.minutes
+        val LOOP = 5.minutes
+        val QUIET_AGE = 3.hours
         val COMMITS = listOf("Bump pgx to v5.6", "Tune autovacuum on jobs table", "Cache route manifest")
     }
 }

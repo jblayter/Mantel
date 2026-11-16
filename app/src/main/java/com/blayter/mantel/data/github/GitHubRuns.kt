@@ -2,6 +2,7 @@ package com.blayter.mantel.data.github
 
 import com.blayter.mantel.domain.DeployOutcome
 import com.blayter.mantel.domain.DeployRun
+import com.blayter.mantel.domain.DeployRules
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -49,8 +50,8 @@ object GitHubRuns {
     /** How far back the card looks before it says "No recent runs". */
     val RECENT_WINDOW: Duration = 7.days
 
-    /** Rows the deploys card has room for. */
-    const val MAX_SHOWN = 3
+    /** The most runs kept for one repository, however busy the last hour was. */
+    const val MAX_PER_REPOSITORY = 8
 
     /** A running bar never claims to be finished. */
     private const val PROGRESS_CAP = 0.95f
@@ -86,12 +87,27 @@ object GitHubRuns {
         }
     }
 
-    /** The runs to put on the card: still going first, then newest; inside the window; at most [MAX_SHOWN]. */
+    /**
+     * The runs the card may show, repository by repository in the order they
+     * were asked for. Within one: still going first, then most recently
+     * finished. Each keeps every run that is active (going, or finished within
+     * [DeployRules.ACTIVE_WINDOW]) and at least the latest
+     * [DeployRules.MAINTENANCE_ROWS], never more than [MAX_PER_REPOSITORY].
+     */
     fun shown(runs: List<WorkflowRun>, now: Instant): List<WorkflowRun> = runs
         .filter { it.isRunning || it.isSuccess || it.isFailure }
         .filter { it.isRunning || between(it.updatedAt, now) <= RECENT_WINDOW }
-        .sortedWith(compareByDescending<WorkflowRun> { it.isRunning }.thenByDescending { it.startedAt })
-        .take(MAX_SHOWN)
+        .groupBy { it.repo }
+        .values
+        .flatMap { ofRepo ->
+            val active = ofRepo.count { it.isRunning || between(it.updatedAt, now) <= DeployRules.ACTIVE_WINDOW }
+            ofRepo
+                .sortedWith(
+                    compareByDescending<WorkflowRun> { it.isRunning }
+                        .thenByDescending { if (it.isRunning) it.startedAt else it.updatedAt },
+                )
+                .take(active.coerceIn(DeployRules.MAINTENANCE_ROWS, MAX_PER_REPOSITORY))
+        }
 
     /**
      * How long this run's workflow usually takes: the median of its

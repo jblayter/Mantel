@@ -75,10 +75,23 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 - `mantel-config.json` at the repo root is gitignored and may hold the owner's
   GitHub token. Never read, print or push it; the owner pushes it themselves.
 - If the TV cannot encrypt, the token is not stored and the deploys card says so.
-- Deploys: every workflow of the repositories in the config, last 7 days, three rows,
+- Deploys: every workflow of the repositories in the config, last 7 days,
   running first. Skipped and cancelled runs are hidden (cancelled is my
   assumption). The progress bar is elapsed time over the median of that
   workflow's recent successful runs, capped at 95%.
+- The deploys card is a carousel, one page per repository, changing every 10 s
+  or with left and right on the remote. A run is active while it is going and
+  for an hour after it ends. While any run is active the card shows only the
+  active repositories and runs, and the count and host cards shrink to make
+  room; otherwise (the maintenance window) it shows every repository's latest
+  four runs. The pure rules are in `domain/DeployRules.kt`.
+- The owner asked for "active" to mean started in the last hour. It is built as
+  going, or ended in the last hour, so a long run does not drop off the card
+  while it is still running. Unconfirmed.
+- The deploys card reaches 24dp into the bottom overscan margin, at the owner's
+  suggestion, so four runs fit.
+- The mock deploy source loops every 5 minutes: 3 active, then 2 pretending
+  hours have passed, so both states can be seen.
 - Memory is in binary units (the 64 GB box reads 59 GB, a `4g` cap 4.0 GB).
 - Glances reports container uptime only as rounded words ("6 hours").
 
@@ -116,6 +129,8 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   the deploys token and no-recent-runs cards (DESIGN.md, "Setup, loading and
   failure states"; mockups in `docs/design/mockups`). "No recent runs", the
   dimmed last-seen rows and the not-stored card have not been seen on a device.
+- The active and maintenance states of the deploys card and its carousel have
+  no mockup; they were built from the owner's description.
 - Not designed yet: run detail, the QR-and-phone-form setup, settings. Design
   them in the Hive language before building.
 - The screen turns stale after 3 unanswered polls

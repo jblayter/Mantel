@@ -86,9 +86,17 @@ cell, where 20–23px labels sit under a 52px number.
   32px gap.
 - Right column is a vertical stack of cards, 20px gap: container count with
   30-minute stacked trend (216px), three host charts in a row (196px), deploys
-  (fills the rest).
+  (fills the rest, and reaches 24px into the bottom margin so four runs fit).
+- While deploys are active (see "Deploy rules") the right column gives its
+  room to the deploys card: the count card keeps only its 30-minute trend
+  (74px), the host cards lose the line under each number (168px), and the
+  deploys card takes what is freed.
 - Spacing steps: 8, 10, 16, 20, 24, 32.
 - Card: surface fill, 3px surface-border, 8px radius, 18–26px padding.
+- Host cards: the area chart is the card's background, edge to edge and top
+  to bottom, and the full scale is the full height, so 60% CPU fills the card
+  to 60%. The title, number and sub-line sit on top of it. (The approved
+  mockup had the chart in a strip under the text.)
 - Burn-in: the whole layout drifts by about 6px × 4px over 15 minutes and
   back. Keep large bright static areas out of the design.
 
@@ -126,14 +134,19 @@ in amber (busy) or coral (wrong).
 ## Motion
 
 Subtle and slow. Allowed: the layout drift, the pulse on a missing cell
-(2.6s), the spinner and moving stripes on an in-progress deploy. Nothing else
-animates.
+(2.6s), the spinner and moving stripes on an in-progress deploy, and the two
+changes on the deploys card. When deploys become active or go quiet, the text
+that is leaving fades out and the cards resize over 0.7s. When the deploys
+card changes repository, the rows slide a short way and fade (0.45s). Nothing
+else animates.
 
 ## Focus (D-pad)
 
 The main screen needs no interaction. Where something is focusable (sort chips,
-later a cell or deploy row), focus is a 3px `#FFF8EA` border. Selected chip is
-amber fill with dark text.
+the deploys card when it has more than one repository, later a cell or deploy
+row), focus is a 3px `#FFF8EA` border. Selected chip is amber fill with dark
+text. With the deploys card focused, right and left change repository; left on
+the first one moves focus back to the sort chips.
 
 ## Data rules shown in the mockup
 
@@ -198,13 +211,28 @@ screen's frame, header, cards and type. Nothing in them can be focused.
 Source is the GitHub Actions REST API, fetched every 45 seconds per repository.
 
 - Every workflow counts. Shown: runs still going, passed and failed. Hidden:
-  skipped and cancelled.
-- Three rows: anything still running first, then newest. Nothing older than
-  7 days.
+  skipped and cancelled. Nothing older than 7 days.
+- A run is **active** while it is going and for one hour after it passes or
+  fails. The card has two states:
+  - **Active**, while any run is active. Only the repositories with active
+    runs, and only those runs. The right column makes room (see "Layout").
+  - **Maintenance window**, otherwise. Every repository, with its latest four
+    runs.
+- The card is a carousel with one page per repository. The header reads
+  "Deploys · [repository]", then "past hour" or "latest runs", then one mark
+  per page with the current one drawn wide and amber. It moves to the next
+  page every 10 seconds. With one page it stays put, so a single repository
+  deploying holds the card.
+- Within a page: anything still running first, then most recently finished.
+  Rows that do not fit whole are left out. A row is the workflow name, then
+  the same detail line as before; the repository is in the header.
 - GitHub reports no progress for a run. The bar is an estimate: time so far
   over the median duration of that workflow's recent successful runs, capped
   at 95%. No bar when the workflow has not been seen to pass.
 - A failed run names the first job that failed.
+
+The two states and the carousel were built straight from the owner's
+description and have no mockup yet.
 
 ## Not designed yet
 
