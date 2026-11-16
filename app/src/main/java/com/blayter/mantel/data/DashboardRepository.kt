@@ -5,12 +5,15 @@ import com.blayter.mantel.domain.ContainerStatus
 import com.blayter.mantel.domain.CountSample
 import com.blayter.mantel.domain.DashboardState
 import com.blayter.mantel.domain.DeployRun
+import com.blayter.mantel.domain.DeployStatus
 import com.blayter.mantel.domain.ExpectedRunners
 import com.blayter.mantel.domain.HostTrends
 import com.blayter.mantel.domain.Presence
+import com.blayter.mantel.domain.StaleReading
 import com.blayter.mantel.domain.Thresholds
 import com.blayter.mantel.domain.kindOf
 import com.blayter.mantel.domain.shortNameOf
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -55,15 +59,19 @@ class DashboardRepository(
     private val expectedRunners: List<String> = ExpectedRunners,
     private val hostPollEvery: Duration = 3.seconds,
     private val deployPollEvery: Duration = 30.seconds,
+    /** Time of day, for "showing the last reading, from 2:32". */
+    private val wallClock: () -> LocalTime = LocalTime::now,
 ) {
     private class EndedEntry(val status: ContainerStatus, val at: Duration)
 
     private val _state = MutableStateFlow<DashboardState?>(null)
 
-    /** Null until the first host poll has arrived. */
+    /** Null until the first host poll has been answered. */
     val state: StateFlow<DashboardState?> = _state.asStateFlow()
 
     private var deploys: List<DeployRun> = emptyList()
+    private var deployStatus: DeployStatus = DeployStatus.Waiting
+    private var lastDeployAnswerClock: LocalTime? = null
     private var lastLive: Map<String, ContainerStatus> = emptyMap()
     private val averages = HashMap<String, ArrayDeque<Double>>()
     private val sustainedSince = HashMap<String, Duration>()
@@ -76,6 +84,10 @@ class DashboardRepository(
     private val loadTrend = ArrayDeque(seed.load)
     private var lastCountSampleAt: Duration? = null
 
+    private var failedHostPolls = 0
+    private var lastAnswerAt: Duration? = null
+    private var lastAnswerClock: LocalTime? = null
+
     init {
         val t = now()
         seed.sustainedFor.forEach { (name, d) -> sustainedSince[name] = t - d }
@@ -87,25 +99,71 @@ class DashboardRepository(
     fun start(scope: CoroutineScope) {
         scope.launch {
             while (isActive) {
-                onDeploys(deploySource.recentRuns())
+                try {
+                    onDeploys(deploySource.recentRuns())
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: DeploySourceException) {
+                    onDeployFailure(e.failure)
+                } catch (e: Exception) {
+                    // A passing failure (network, GitHub down): keep what is on screen and try again.
+                }
                 delay(deployPollEvery)
             }
         }
         scope.launch {
             while (isActive) {
-                onHostSnapshot(hostSource.snapshot())
+                val snapshot = attempt { hostSource.snapshot() }
+                if (snapshot != null) onHostSnapshot(snapshot) else onHostFailure()
                 delay(hostPollEvery)
             }
         }
     }
 
+    /** Null when the source failed for any reason: unreachable, timed out, or an unreadable reply. */
+    private suspend fun <T : Any> attempt(poll: suspend () -> T): T? = try {
+        poll()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
+    }
+
+    /**
+     * A host poll went unanswered. One slow reply is not worth alarming
+     * anyone, so the screen only turns stale after [STALE_AFTER_FAILED_POLLS]
+     * in a row. Before the first reading there is nothing to mark stale and
+     * the state stays null (the loading screen).
+     */
+    internal fun onHostFailure() {
+        failedHostPolls++
+        val answeredAt = lastAnswerAt ?: return
+        val answeredClock = lastAnswerClock ?: return
+        if (failedHostPolls < STALE_AFTER_FAILED_POLLS) return
+        _state.value = _state.value?.copy(stale = StaleReading(now() - answeredAt, answeredClock))
+    }
+
     internal fun onDeploys(runs: List<DeployRun>) {
         deploys = runs
-        _state.value = _state.value?.copy(deploys = runs)
+        deployStatus = DeployStatus.Live
+        lastDeployAnswerClock = wallClock()
+        _state.value = _state.value?.copy(deploys = runs, deployStatus = deployStatus)
+    }
+
+    /** The token is the problem. The last runs seen stay in the state so the card can show them as old. */
+    internal fun onDeployFailure(failure: DeployFailure) {
+        deployStatus = when (failure) {
+            DeployFailure.TokenRejected -> DeployStatus.TokenExpired(lastDeployAnswerClock)
+            DeployFailure.TokenNotStored -> DeployStatus.TokenNotStored
+        }
+        _state.value = _state.value?.copy(deployStatus = deployStatus)
     }
 
     internal fun onHostSnapshot(snapshot: HostSnapshot) {
         val t = now()
+        failedHostPolls = 0
+        lastAnswerAt = t
+        lastAnswerClock = wallClock()
         val live = snapshot.containers.map { raw -> liveStatus(raw, snapshot.memoryTotalMb, t) }
         val liveNames = live.mapTo(HashSet()) { it.name }
 
@@ -155,6 +213,7 @@ class DashboardRepository(
                 cpuTrend.toList(), memoryTrend.toList(), loadTrend.toList(), snapshot.load5, snapshot.load15,
             ),
             deploys = deploys,
+            deployStatus = deployStatus,
         )
     }
 
@@ -193,6 +252,9 @@ class DashboardRepository(
 
         /** Samples in the CPU moving average that orders the hive. */
         const val AVERAGE_SAMPLES = 10
+
+        /** Unanswered polls in a row before the screen shows the last reading as stale. Provisional. */
+        const val STALE_AFTER_FAILED_POLLS = 3
 
         /** 60 samples at this spacing is the count card's "last 30 min". */
         val COUNT_SAMPLE_EVERY = 30.seconds

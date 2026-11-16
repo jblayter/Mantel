@@ -31,6 +31,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.tv.material3.Text
+import com.blayter.mantel.data.DashboardRepository.Companion.TREND_SAMPLES
 import com.blayter.mantel.domain.ContainerKind
 import com.blayter.mantel.domain.ContainerStatus
 import com.blayter.mantel.domain.CountSample
@@ -51,7 +52,12 @@ private const val TREND_SCALE = 14f
 
 /** The big container count, the breakdown by kind, and the 30-minute stacked trend. */
 @Composable
-fun CountCard(containers: List<ContainerStatus>, trend: List<CountSample>, modifier: Modifier = Modifier) {
+fun CountCard(
+    containers: List<ContainerStatus>,
+    trend: List<CountSample>,
+    modifier: Modifier = Modifier,
+    stale: Boolean = false,
+) {
     val live = containers.filter { it.isLive }
     fun count(kind: ContainerKind) = live.count { it.kind == kind }
     val missingRunners = containers.count { it.isMissing && it.kind == ContainerKind.Runner }
@@ -69,10 +75,10 @@ fun CountCard(containers: List<ContainerStatus>, trend: List<CountSample>, modif
                 Text(
                     live.size.toString(),
                     style = HiveType.displayXl.copy(lineHeight = COUNT_LINE_HEIGHT_EM.em),
-                    color = HiveTokens.Color.textBright,
+                    color = if (stale) HiveTokens.Color.textDim else HiveTokens.Color.textBright,
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(KindLineGap)) {
-                    Text("containers right now", style = HiveType.bodyBold, color = HiveTokens.Color.textMuted)
+                    Text(if (stale) "containers at the last reading" else "containers right now", style = HiveType.bodyBold, color = HiveTokens.Color.textMuted)
                     KindLine(ContainerKind.Runner, count(ContainerKind.Runner), "runners", if (missingRunners > 0) "· $missingRunners missing" else "")
                     KindLine(ContainerKind.Database, count(ContainerKind.Database), "job databases")
                     KindLine(ContainerKind.Job, count(ContainerKind.Job), "job containers")
@@ -87,6 +93,23 @@ fun CountCard(containers: List<ContainerStatus>, trend: List<CountSample>, modif
                     color = HiveTokens.Color.textMuted,
                 )
             }
+        }
+    }
+}
+
+/** The count card before the first reading: a dash where the number will be. */
+@Composable
+fun CountCardPlaceholder(modifier: Modifier = Modifier) {
+    HiveCard(modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .padding(horizontal = HiveTokens.Card.paddingX, vertical = HiveTokens.Card.paddingY)
+                .height(ContentHeight),
+            horizontalArrangement = Arrangement.spacedBy(HiveTokens.Card.paddingX),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("—", style = HiveType.displayXl.copy(lineHeight = COUNT_LINE_HEIGHT_EM.em), color = HiveTokens.Color.textDim)
+            Text("containers right now", style = HiveType.bodyBold, color = HiveTokens.Color.textMuted)
         }
     }
 }
@@ -121,12 +144,15 @@ private fun CountTrend(trend: List<CountSample>, modifier: Modifier = Modifier) 
             .semantics { contentDescription = "Container count by kind, last 30 minutes" },
     ) {
         if (trend.isEmpty()) return@Canvas
-        val stepX = size.width / trend.size
+        // The chart is always the full window wide, newest at the right edge,
+        // so a display that has just started shows a short strip, not a full one.
+        val stepX = size.width / TREND_SAMPLES
+        val first = TREND_SAMPLES - trend.size
         val unit = size.height / TREND_SCALE
         fun band(i: Int, from: Int, to: Int, color: Color) {
             if (to > from) {
                 // One extra pixel of width hides hairline seams between steps.
-                drawRect(color, Offset(i * stepX, size.height - to * unit), Size(stepX + 1f, (to - from) * unit))
+                drawRect(color, Offset((first + i) * stepX, size.height - to * unit), Size(stepX + 1f, (to - from) * unit))
             }
         }
         trend.forEachIndexed { i, s ->

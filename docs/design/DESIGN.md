@@ -163,11 +163,55 @@ minutes; ended cells linger for about a minute.
 - Charts: `Canvas` area charts; stacked step chart for the count trend.
 - Treat px in this document as dp at 1080p.
 
+## Setup, loading and failure states
+
+Mockups are in `mockups/`: `State-Setup`, `State-Loading`, `State-Unreachable`,
+`Deploys-TokenExpired` and `Deploys-NoRuns`. All of them reuse the main
+screen's frame, header, cards and type. Nothing in them can be focused.
+
+- **Not set up yet** (no config): the title in Fraunces, one lead sentence, a
+  card with the commands to run, and an amber spinner line saying Mantel is
+  looking for the file. A corner of empty dashed cells on the right. If a
+  pushed file cannot be used, a coral warning line says why. The mockup shows
+  one `adb push` command; the built screen shows two, because Android 11 and
+  later refuse a push into the app's folder. This is an interim screen until
+  the QR setup is designed.
+- **Waiting for the first reading**: the main layout with twelve empty cells
+  (ended-cell base and dashed outline), a dim "—" where each number will be,
+  and the spinner with "Waiting for the first reading from [address]".
+- **CI box not answering**: the last reading stays on screen, visibly stale.
+  Every cell takes the ended look (no glow, dim dashed outline, dim text) but
+  keeps its values. The count and host numbers go dim, the chart line goes dim
+  on a track-colored fill, and the count title reads "containers at the last
+  reading". The warnings are replaced by one coral line, "[host] has not
+  answered for [time]", and a second line giving the clock time of the last
+  reading. The deploys card stays live: GitHub is a separate source.
+- **Deploys, token problem**: coral triangle, a coral title ("GitHub token has
+  expired", or "was not accepted" for a token that never worked, or "was not
+  stored" when the TV could not encrypt it), one sentence on what to do, then
+  the last runs seen, dimmed, with clock times instead of ages.
+- **Deploys, no recent runs**: a dim circle-and-dash icon, "No recent runs",
+  and one sentence naming the repositories and the 7-day window.
+
+## Deploy rules
+
+Source is the GitHub Actions REST API, fetched every 45 seconds per repository.
+
+- Every workflow counts. Shown: runs still going, passed and failed. Hidden:
+  skipped and cancelled.
+- Three rows: anything still running first, then newest. Nothing older than
+  7 days.
+- GitHub reports no progress for a run. The bar is an estimate: time so far
+  over the median duration of that workflow's recent successful runs, capped
+  at 95%. No bar when the workflow has not been seen to pass.
+- A failed run names the first job that failed.
+
 ## Not designed yet
 
-Run detail, first-run setup (TV QR screen and phone form), settings, and the
-loading, host-unreachable, token-expired and no-recent-runs states. They should
-follow this language. A table-style container screen exists on the canvas
-("Containers") as a possible drill-in, still in the earlier cold palette.
+Run detail, the QR first-run setup (TV QR screen and phone form), settings,
+and what the deploys card shows when GitHub fails for a reason other than the
+token. They should follow this language. A table-style container screen exists
+on the canvas ("Containers") as a possible drill-in, still in the earlier cold
+palette.
 
-The deploys card in the mockup uses invented sample runs.
+The deploys card in the main mockup uses invented sample runs.

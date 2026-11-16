@@ -80,9 +80,13 @@ private fun hexPath(size: Size, inset: Float): Path = Path().apply {
     close()
 }
 
-/** One container as a hexagonal cell. The five states are in DESIGN.md, "Cell states". */
+/**
+ * One container as a hexagonal cell. The five states are in DESIGN.md, "Cell states".
+ * With [stale] set the CI box has stopped answering: the cell keeps its last
+ * values but loses its glow and colour, and takes the dim dashed outline.
+ */
 @Composable
-fun HexCell(container: ContainerStatus, modifier: Modifier = Modifier) {
+fun HexCell(container: ContainerStatus, modifier: Modifier = Modifier, stale: Boolean = false) {
     val c = HiveTokens.Color
     val trouble = HiveTokens.Color.Status.trouble
     val missing = container.isMissing
@@ -92,21 +96,24 @@ fun HexCell(container: ContainerStatus, modifier: Modifier = Modifier) {
     val memHot = container.isMemoryNearCap(HiveTokens.ThresholdsProposed.memoryNearCapPercent)
 
     val base = when {
+        stale -> HiveTokens.Color.Cell.baseEnded
         missing -> HiveTokens.Color.Cell.baseMissing
         ended -> HiveTokens.Color.Cell.baseEnded
         else -> HiveTokens.Color.Cell.base
     }
     val glow = if (hot) HiveTokens.Color.Cell.glowHot else HiveTokens.Color.Cell.glow
-    val level = if (live) glowLevel(container.cores) else 0f
+    val level = if (live && !stale) glowLevel(container.cores) else 0f
     val stroke = when {
+        stale -> HiveTokens.Color.Cell.strokeEnded
         missing || memHot -> trouble
         ended -> HiveTokens.Color.Cell.strokeEnded
         hot -> c.amber
         else -> container.kind.color()
     }
-    val strokeWidth: Dp = if (missing || memHot || hot) HiveTokens.Hex.strokeWidthAlert else HiveTokens.Hex.strokeWidth
-    val dashed = missing || ended
-    val strokeAlpha = if (missing) pulse() else remember { mutableFloatStateOf(1f) }
+    val alert = !stale && (missing || memHot || hot)
+    val strokeWidth: Dp = if (alert) HiveTokens.Hex.strokeWidthAlert else HiveTokens.Hex.strokeWidth
+    val dashed = stale || missing || ended
+    val strokeAlpha = if (missing && !stale) pulse() else remember { mutableFloatStateOf(1f) }
 
     Box(modifier.size(HiveTokens.Hex.width, HiveTokens.Hex.height)) {
         Canvas(Modifier.fillMaxSize()) {
@@ -144,16 +151,16 @@ fun HexCell(container: ContainerStatus, modifier: Modifier = Modifier) {
                     is Presence.Live -> "${container.kind.word()} · ${formatAgeShort(presence.uptime)}"
                 },
                 style = HiveType.cellLabelSmallBold.copy(letterSpacing = KIND_LETTER_SPACING_EM.em),
-                color = if (missing) trouble else if (ended) c.textDim else container.kind.color(),
+                color = if (stale || ended) c.textDim else if (missing) trouble else container.kind.color(),
                 maxWidth = KindMaxWidth,
             )
             Text(
                 text = if (live) formatCores(container.cores) else "—",
                 style = HiveType.displayL.copy(lineHeight = NUMBER_LINE_HEIGHT_EM.em),
-                color = if (live) c.textBright else c.textDim,
+                color = if (live && !stale) c.textBright else c.textDim,
                 maxLines = 1,
             )
-            Line(container.shortName, HiveType.cellLabel, if (ended) c.textDim else c.text, NameMaxWidth)
+            Line(container.shortName, HiveType.cellLabel, if (stale || ended) c.textDim else c.text, NameMaxWidth)
             Line(
                 text = when {
                     presence is Presence.Missing -> "gone ${formatAge(presence.goneFor)}"
@@ -161,16 +168,33 @@ fun HexCell(container: ContainerStatus, modifier: Modifier = Modifier) {
                     hot -> "busy ${formatAge(container.sustainedFor!!)}"
                     else -> formatMemory(container)
                 },
-                style = if (missing || memHot || hot) HiveType.cellLabelSmallBold else HiveType.cellLabelSmall,
+                style = if (alert) HiveType.cellLabelSmallBold else HiveType.cellLabelSmall,
                 color = when {
+                    stale || ended -> c.textDim
                     missing || memHot -> trouble
-                    ended -> c.textDim
                     hot -> c.amberSoft
                     else -> c.textSoft
                 },
                 maxWidth = SubMaxWidth,
             )
         }
+    }
+}
+
+/** A cell with nothing in it yet: the dim dashed outline alone. Used before the first reading. */
+@Composable
+fun EmptyHexCell(modifier: Modifier = Modifier) {
+    Canvas(modifier.size(HiveTokens.Hex.width, HiveTokens.Hex.height)) {
+        clipPath(hexPath(size, 0f)) { drawRect(HiveTokens.Color.Cell.baseEnded) }
+        drawPath(
+            path = hexPath(size, HiveTokens.Hex.strokeWidth.toPx()),
+            color = HiveTokens.Color.Cell.strokeEnded,
+            style = Stroke(
+                width = HiveTokens.Hex.strokeWidth.toPx(),
+                join = StrokeJoin.Round,
+                pathEffect = PathEffect.dashPathEffect(HiveTokens.Hex.dash.map { it.toPx() }.toFloatArray()),
+            ),
+        )
     }
 }
 

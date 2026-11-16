@@ -1,6 +1,7 @@
 package com.blayter.mantel.ui.hive
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -23,7 +24,7 @@ val HiveHeight: Dp = HiveTokens.Hex.height + (HiveTokens.Hex.height + HiveTokens
  * grid never scrolls.
  */
 @Composable
-fun HiveGrid(containers: List<ContainerStatus>, modifier: Modifier = Modifier) {
+fun HiveGrid(containers: List<ContainerStatus>, modifier: Modifier = Modifier, stale: Boolean = false) {
     val hex = HiveTokens.Hex
     val geometry = hiveGeometry(
         count = containers.size,
@@ -39,7 +40,7 @@ fun HiveGrid(containers: List<ContainerStatus>, modifier: Modifier = Modifier) {
     Box(modifier.size(HiveTokens.Screen.hiveColumnWidth, HiveHeight)) {
         val outer = LocalDensity.current
         CompositionLocalProvider(LocalDensity provides Density(outer.density * geometry.scale, outer.fontScale)) {
-            Layout(content = { containers.forEach { key(it.name) { HexCell(it) } } }) { measurables, constraints ->
+            Layout(content = { containers.forEach { key(it.name) { HexCell(it, stale = stale) } } }) { measurables, constraints ->
                 val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
                 val stepX = (hex.width + hex.gap).roundToPx()
                 val stepY = (hex.height + hex.rowOverlap).roundToPx()
@@ -51,6 +52,26 @@ fun HiveGrid(containers: List<ContainerStatus>, modifier: Modifier = Modifier) {
                         p.place(col * stepX + if (row % 2 == 1) oddOffset else 0, row * stepY)
                     }
                 }
+            }
+        }
+    }
+}
+
+/** [rows] rows of [perRow] empty cells on the same honeycomb spacing, for screens with no containers to show. */
+@Composable
+fun EmptyHive(rows: Int, perRow: Int, modifier: Modifier = Modifier) {
+    val hex = HiveTokens.Hex
+    val stepX = hex.width + hex.gap
+    val stepY = hex.height + hex.rowOverlap
+    Box(
+        modifier.size(
+            width = stepX * perRow - hex.gap + if (rows > 1) hex.oddRowOffset else Dp(0f),
+            height = hex.height + stepY * (rows - 1),
+        ),
+    ) {
+        for (row in 0 until rows) {
+            for (col in 0 until perRow) {
+                EmptyHexCell(Modifier.offset(x = stepX * col + if (row % 2 == 1) hex.oddRowOffset else Dp(0f), y = stepY * row))
             }
         }
     }

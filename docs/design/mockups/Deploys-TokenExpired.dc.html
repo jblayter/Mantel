@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mantel · Deploys card, GitHub token expired</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=DM+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#2B1E15}
+a{color:#93BBD0}a:hover{color:#9ACDE6}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</helmet>
+<div style="width:716px;height:386px;box-sizing:border-box;background:#3A2A1E;border:3px solid #5C4431;border-radius:8px;padding:18px 26px;display:flex;flex-direction:column;gap:12px;color:#F2E9DA;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden">
+<div style="font-size:24px;font-weight:700;color:#D2C0A6">Deploys</div>
+
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;align-items:start">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#FF8A68" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"></path><path d="M12 10v5M12 18v.5"></path></svg>
+<div style="min-width:0">
+<div style="font-size:30px;font-weight:700;color:#FF8A68">GitHub token has expired</div>
+<div style="font-size:24px;line-height:1.35;color:#EADFCB">Deploy status stopped updating at 2:14. Push a config file with a new token to bring it back.</div>
+</div>
+</div>
+
+<div style="font-size:24px;font-weight:700;color:#D2C0A6;margin-top:4px">Last seen at 2:14</div>
+
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;align-items:center">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#AD9D87" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"></path></svg>
+<div class="trunc" style="font-size:24px;color:#AD9D87"><span style="font-weight:700">reach</span> Deploy production · failed at e2e-tests</div>
+<div style="font-size:24px;color:#AD9D87">2:08</div>
+</div>
+
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;align-items:center">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#AD9D87" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M7.5 12.5l3 3 6-6.5"></path></svg>
+<div class="trunc" style="font-size:24px;color:#AD9D87"><span style="font-weight:700">krakentv</span> CI · passed</div>
+<div style="font-size:24px;color:#AD9D87">1:56</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":716,"height":386}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

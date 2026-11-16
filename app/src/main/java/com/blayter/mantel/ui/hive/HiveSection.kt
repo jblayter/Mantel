@@ -40,23 +40,36 @@ import androidx.tv.material3.Text
 import com.blayter.mantel.domain.ContainerStatus
 import com.blayter.mantel.domain.HiveSort
 import com.blayter.mantel.domain.Severity
+import com.blayter.mantel.domain.StaleReading
+import com.blayter.mantel.domain.formatAge
 import com.blayter.mantel.domain.Warning
 import com.blayter.mantel.domain.sortForHive
 import com.blayter.mantel.domain.warningsFor
 import com.blayter.mantel.ui.theme.HiveTokens
 import com.blayter.mantel.ui.theme.HiveType
+import java.time.format.DateTimeFormatter
 
 // Sizes from the approved mockup that are not in tokens.json.
-private val CaptionRowHeight = 44.dp
+val CaptionRowHeight = 44.dp
 private val ChipPaddingX = 18.dp
 private val ChipPaddingY = 4.dp
 private val WarningRowHeight = 38.dp
 private val WarningIconSize = 28.dp
 private val WarningIconGap = 14.dp
+private val ReadingTime = DateTimeFormatter.ofPattern("h:mm")
 
-/** Left column: caption and sort chips, the honeycomb, then up to three warnings. */
+/**
+ * Left column: caption and sort chips, the honeycomb, then up to three warnings.
+ * While the CI box is not answering ([stale]), the cells show the last reading
+ * dimmed and the warnings give way to the one that matters.
+ */
 @Composable
-fun HiveSection(containers: List<ContainerStatus>, modifier: Modifier = Modifier) {
+fun HiveSection(
+    containers: List<ContainerStatus>,
+    hostName: String,
+    stale: StaleReading?,
+    modifier: Modifier = Modifier,
+) {
     var sort by rememberSaveable { mutableStateOf(HiveSort.Busiest) }
     val sorted = remember(containers, sort) { sortForHive(containers, sort) }
     val warnings = remember(containers) {
@@ -81,9 +94,20 @@ fun HiveSection(containers: List<ContainerStatus>, modifier: Modifier = Modifier
                 HiveSort.entries.forEach { SortChip(it.label, selected = it == sort) { sort = it } }
             }
         }
-        HiveGrid(sorted)
+        HiveGrid(sorted, stale = stale != null)
         Column(verticalArrangement = Arrangement.spacedBy(HiveTokens.Space.s8)) {
-            warnings.forEach { WarningLine(it) }
+            if (stale == null) {
+                warnings.forEach { WarningLine(it) }
+            } else {
+                WarningLine(Warning(hostName, "has not answered for ${formatAge(stale.unansweredFor)}", Severity.Wrong))
+                Text(
+                    "Showing the last reading, from ${stale.lastReadingAt.format(ReadingTime)}. Trying again every few seconds.",
+                    Modifier.padding(start = WarningIconSize + WarningIconGap),
+                    color = HiveTokens.Color.textSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
@@ -114,7 +138,7 @@ private fun SortChip(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun WarningLine(warning: Warning) {
+fun WarningLine(warning: Warning) {
     val color = when (warning.severity) {
         Severity.Busy -> HiveTokens.Color.amber
         Severity.Wrong -> HiveTokens.Color.Status.trouble

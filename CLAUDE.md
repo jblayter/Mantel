@@ -4,8 +4,9 @@ Open-source Android TV app: an always-on wall display for a home CI box. It
 answers two questions at a glance from across the room: "is the machine
 struggling?" and "did my last deploy go out?"
 
-The main "Hive" dashboard is built and runs on mock data. There are no network
-calls yet: the Glances and GitHub clients are the next piece of work.
+The main "Hive" dashboard is built. Host stats and containers are live from
+Glances and deploys are live from GitHub Actions when the config has a token;
+without one the deploys card is the mock and the header says "sample deploys".
 
 ## Read first
 
@@ -48,8 +49,17 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   which holds all history and derives missing, ended, sustained CPU and the
   trends. `data/mock` has the ticking mock sources and the seed that opens on
   the mockup's sample screen.
-- `MainActivity.mockRepository()` is the only place that chooses sources. Going
-  live means replacing the two mock sources there and dropping the seed.
+- `data/config` — the pushed `mantel-config.json` (`ConfigFile`, read once and
+  deleted) and `ConfigStore` (EncryptedSharedPreferences). `data/glances` — the
+  Glances client; `GlancesParser` is pure and tested against captured replies in
+  `app/src/test/resources/glances`.
+- `data/github` — `GitHubDeploySource` (fetches every 45 s, answers every second
+  so timers tick) and the pure rules in `GitHubRuns`.
+- `MainActivity.open()` is the only place that chooses sources. No config shows
+  `SetupScreen`; a config with no reading yet shows `LoadingScreen`; unanswered
+  polls set `DashboardState.stale` and the dashboard dims to the last reading.
+- `-Pmantel.mock=true` builds the all-mock app that opens on the mockup's sample
+  screen.
 
 ## Decisions made
 
@@ -57,6 +67,20 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   value was added to tokens.json.
 - The kind line in a cell uses short units (`RUNNER · 4m`); the long form does
   not fit.
+- Config arrives as an adb-pushed file, never in the APK or repo. The Fire TV
+  (Android 11) refuses a push into `/sdcard/Android/data`, so the route is
+  `/data/local/tmp` then `run-as cp` into internal storage.
+- The CI box is `192.168.6.35`; the Fire TV (`192.168.6.226`) cannot resolve
+  `ci-runner01.local`, so configs carry the IP.
+- `mantel-config.json` at the repo root is gitignored and may hold the owner's
+  GitHub token. Never read, print or push it; the owner pushes it themselves.
+- If the TV cannot encrypt, the token is not stored and the deploys card says so.
+- Deploys: every workflow of `Factory55/RxFlow`, last 7 days, three rows,
+  running first. Skipped and cancelled runs are hidden (cancelled is my
+  assumption). The progress bar is elapsed time over the median of that
+  workflow's recent successful runs, capped at 95%.
+- Memory is in binary units (the 64 GB box reads 59 GB, a `4g` cap 4.0 GB).
+- Glances reports container uptime only as rounded words ("6 hours").
 
 ## Product constraints
 
@@ -88,15 +112,20 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 - Alert thresholds in `tokens.json` (`thresholds_proposed`) are proposals, not
   confirmed. The app uses them provisionally. Host CPU turning coral at 90%
   (from the mockup's script) is also unconfirmed.
-- Not designed yet: run detail, first-run setup (TV QR screen plus phone form),
-  settings, and the loading, host-unreachable, token-expired and
-  no-recent-runs states. Design them in the Hive language before building.
+- Designed and built: the interim setup screen, loading, host-unreachable and
+  the deploys token and no-recent-runs cards (DESIGN.md, "Setup, loading and
+  failure states"; mockups in `docs/design/mockups`). "No recent runs", the
+  dimmed last-seen rows and the not-stored card have not been seen on a device.
+- Not designed yet: run detail, the QR-and-phone-form setup, settings. Design
+  them in the Hive language before building.
+- The screen turns stale after 3 unanswered polls
+  (`STALE_AFTER_FAILED_POLLS`); provisional.
+- What the deploys card shows when GitHub fails for a reason other than the
+  token (wrong repository name, no network): today it keeps what it had.
+- reach and krakentv repositories are not in the config yet.
 - Whether the table-style container list becomes a drill-in screen.
-- How secrets (GitHub token, Glances password) are stored is undecided.
 - The short-name rule for non-runner containers (`shortNameOf`) is an
   assumption that matches the mockup; check it against the real container list.
-- How the deploy progress bar gets a value: GitHub reports no progress for a
-  run, and the mock's percentage is invented.
 - What time window the CPU, memory and load charts cover (now 60 samples).
 - Whether coral warnings should be listed before amber ones when more than
   three apply.

@@ -32,7 +32,23 @@ interface HostSource {
     suspend fun snapshot(): HostSnapshot
 }
 
-/** Recent workflow runs, newest first. Today a mock; later the GitHub Actions client. */
+/** Why deploy status cannot be read at all, as opposed to a passing network failure. */
+enum class DeployFailure {
+    /** GitHub answered 401: the token has expired or been revoked. */
+    TokenRejected,
+
+    /** A token was pushed, but this TV could not encrypt it, so it was not kept. */
+    TokenNotStored,
+}
+
+class DeploySourceException(val failure: DeployFailure) : Exception(failure.name)
+
+/**
+ * Recent workflow runs, the ones to show, in display order. Called every
+ * second so timers tick; a real source answers from its last fetch and only
+ * goes to the network at its own poll interval. Throws [DeploySourceException]
+ * when the token is the problem, anything else for a failure worth retrying.
+ */
 interface DeploySource {
     suspend fun recentRuns(): List<DeployRun>
 }
