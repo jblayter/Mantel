@@ -36,7 +36,7 @@ class GitHubRunsTest {
         ${run(1, "CI", 1, "completed", "success", "2026-11-01T10:00:00Z", "2026-11-01T10:09:00Z")}
     ]}"""
 
-    private val runs = GitHubRuns.parseRuns("Factory55/RxFlow", reply)
+    private val runs = GitHubRuns.parseRuns("example-org/RxFlow", reply)
 
     @Test
     fun parsesRuns() {
@@ -99,7 +99,7 @@ class GitHubRunsTest {
     fun sourceAsksTheNetworkOncePerIntervalAndSendsTheTokenOnlyToGitHub() = runTest {
         var clock = now
         val asked = mutableListOf<String>()
-        val source = GitHubDeploySource("secret", listOf("Factory55/RxFlow"), { clock }, Duration.ofSeconds(45)) { url, headers ->
+        val source = GitHubDeploySource("secret", listOf("example-org/RxFlow"), { clock }, Duration.ofSeconds(45)) { url, headers ->
             assertTrue(url.startsWith("https://api.github.com/"))
             assertEquals("Bearer secret", headers["Authorization"])
             asked += url

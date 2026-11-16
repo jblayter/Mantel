@@ -33,9 +33,9 @@ class MantelConfigTest {
 
     @Test
     fun readsTheGitHubTokenAndRepositories() {
-        val config = ok("""{"glancesUrl":"http://box:61208","githubToken":" abc123 ","repos":["Factory55/RxFlow","me/reach"]}""")
+        val config = ok("""{"glancesUrl":"http://box:61208","githubToken":" abc123 ","repos":["example-org/RxFlow","me/reach"]}""")
         assertEquals("abc123", config.githubToken)
-        assertEquals(listOf("Factory55/RxFlow", "me/reach"), config.repos)
+        assertEquals(listOf("example-org/RxFlow", "me/reach"), config.repos)
         assertTrue("the token never appears in logs", "abc123" !in config.toString())
 
         val without = ok("""{"glancesUrl":"http://box:61208"}""")
