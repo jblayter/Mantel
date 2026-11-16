@@ -1,11 +1,18 @@
 package com.blayter.mantel.ui.panel
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,7 +25,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import com.blayter.mantel.domain.DeployBoard
+import com.blayter.mantel.domain.deployBoard
+import com.blayter.mantel.domain.pageAfter
+import com.blayter.mantel.domain.pageToShow
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +93,16 @@ private const val MAX_LAST_SEEN = 2
 private val ClockTime = DateTimeFormatter.ofPattern("h:mm")
 private val StripeWidth = 10.dp
 
+// Not in a mockup yet: the carousel and the taller card.
+/** How far the card reaches into the bottom margin, so four finished runs fit in the maintenance window. */
+private val BottomGrow = 24.dp
+private val PageMark = 10.dp
+private val PageMarkWide = 28.dp
+private const val PageChangeMillis = 450
+
+/** A changing page slides by the card's width over this. */
+private const val PAGE_SLIDE_FRACTION = 6
+
 /** Stripes travel 40 px in 1.6 s in the mockup. */
 private const val STRIPE_PX_PER_SECOND = 25f
 
@@ -68,11 +110,18 @@ private const val STRIPE_PX_PER_SECOND = 25f
 private const val STRIPE_LEAN = 0.5774f
 
 /**
- * Recent workflow runs: in progress, failed, passed. Each has an icon and words, never color alone.
+ * Workflow runs, one repository at a time. Each run has an icon and words, never color alone.
+ * The repositories are pages of a carousel: it moves on by itself every
+ * [HiveTokens.Motion.carouselSeconds] when there is more than one page, and
+ * left and right on the remote move it while the card has focus.
  * When there is nothing live to list, the card says why instead: still
  * waiting, no recent runs, or a problem with the GitHub token.
  *
+ * The card is [BottomGrow] taller than the room it is given, into the bottom margin.
+ *
+ * @param deploys every run the source gave, for the "last seen" rows when the token stops working.
  * @param repoNames short names of the watched repositories, for the "no recent runs" sentence.
+ * @param board [deploys] as pages.
  */
 @Composable
 fun DeploysCard(
@@ -80,17 +129,58 @@ fun DeploysCard(
     modifier: Modifier = Modifier,
     status: DeployStatus = DeployStatus.Live,
     repoNames: List<String> = emptyList(),
+    board: DeployBoard = remember(deploys) { deployBoard(deploys) },
 ) {
-    HiveCard(modifier.fillMaxWidth()) {
+    val repos = if (status == DeployStatus.Live) board.pages.map { it.repo } else emptyList()
+    var wanted by remember { mutableStateOf<String?>(null) }
+    val showing = pageToShow(repos, wanted)
+    // Which way the rows slide: +1 when moving on, -1 when the remote went back.
+    var direction by remember { mutableIntStateOf(1) }
+    // Counts presses on the remote, so each one restarts the wait before the next automatic change.
+    var presses by remember { mutableIntStateOf(0) }
+    fun move(step: Int) {
+        direction = step
+        wanted = pageAfter(repos, showing, step)
+    }
+    LaunchedEffect(repos, showing, presses) {
+        if (repos.size > 1) {
+            delay(HiveTokens.Motion.carouselSeconds.seconds)
+            move(1)
+        }
+    }
+
+    var focused by remember { mutableStateOf(false) }
+    HiveCard(
+        modifier
+            .growDown(BottomGrow)
+            .fillMaxWidth()
+            .onFocusChanged { focused = it.isFocused }
+            .onKeyEvent { event ->
+                // Left on the first page is left alone, so focus can go back to the sort chips.
+                val step = when {
+                    event.type != KeyEventType.KeyDown -> 0
+                    event.key == Key.DirectionRight -> 1
+                    event.key == Key.DirectionLeft && repos.indexOf(showing) > 0 -> -1
+                    else -> 0
+                }
+                if (step != 0) {
+                    presses++
+                    move(step)
+                }
+                step != 0
+            }
+            .focusable(enabled = repos.size > 1),
+        focused = focused,
+    ) {
         Column(
             Modifier.fillMaxSize().padding(horizontal = HiveTokens.Card.paddingX, vertical = PaddingY),
             verticalArrangement = Arrangement.spacedBy(RowGap),
         ) {
-            Text("Deploys", style = HiveType.bodyBold, color = HiveTokens.Color.textMuted)
+            Header(showing, repos, board.active)
             when (status) {
                 DeployStatus.Waiting -> Text("Waiting for the first reading", color = HiveTokens.Color.textDim)
                 DeployStatus.Live ->
-                    if (deploys.isEmpty()) NoRecentRuns(repoNames) else deploys.forEach { DeployRow(it) }
+                    if (showing == null) NoRecentRuns(repoNames) else RepoPages(showing, board, direction, Modifier.weight(1f))
                 is DeployStatus.TokenExpired -> TokenExpired(status.lastSeenAt, deploys)
                 DeployStatus.TokenNotStored -> Notice(
                     icon = { TroubleTriangle() },
@@ -101,6 +191,92 @@ fun DeploysCard(
             }
         }
     }
+}
+
+/** "Deploys · rxflow", what the rows cover, and a mark per page with the current one drawn wide. */
+@Composable
+private fun Header(showing: String?, repos: List<String>, active: Boolean) {
+    Row(horizontalArrangement = Arrangement.spacedBy(HiveTokens.Space.s16), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            buildAnnotatedString {
+                append("Deploys")
+                if (showing != null) {
+                    append(" · ")
+                    withStyle(SpanStyle(color = HiveTokens.Color.textBright)) { append(showing) }
+                }
+            },
+            Modifier.weight(1f),
+            style = HiveType.bodyBold,
+            color = HiveTokens.Color.textMuted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (showing == null) return
+        Text(if (active) "past hour" else "latest runs", color = HiveTokens.Color.textMuted)
+        if (repos.size > 1) {
+            Row(
+                Modifier.semantics { contentDescription = "Repository ${repos.indexOf(showing) + 1} of ${repos.size}" },
+                horizontalArrangement = Arrangement.spacedBy(HiveTokens.Space.s8),
+            ) {
+                repos.forEach { repo ->
+                    val current = repo == showing
+                    Box(
+                        Modifier
+                            .size(if (current) PageMarkWide else PageMark, PageMark)
+                            .background(if (current) HiveTokens.Color.amber else HiveTokens.Color.textDim, CircleShape),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** The rows of the repository being shown. A change of repository slides the old rows out and the new ones in. */
+@Composable
+private fun RepoPages(showing: String, board: DeployBoard, direction: Int, modifier: Modifier = Modifier) {
+    AnimatedContent(
+        targetState = showing,
+        modifier = modifier.fillMaxWidth(),
+        transitionSpec = {
+            val slide = tween<IntOffset>(PageChangeMillis)
+            (slideInHorizontally(slide) { direction * it / PAGE_SLIDE_FRACTION } + fadeIn(tween(PageChangeMillis)))
+                .togetherWith(slideOutHorizontally(slide) { -direction * it / PAGE_SLIDE_FRACTION } + fadeOut(tween(PageChangeMillis / 2)))
+        },
+        label = "repository",
+    ) { repo ->
+        val runs = board.pages.firstOrNull { it.repo == repo }?.runs.orEmpty()
+        WholeRows(RowGap, Modifier.fillMaxSize()) { runs.forEach { DeployRow(it) } }
+    }
+}
+
+/** A column that shows as many of its children as fit whole, and leaves the rest out rather than cut one off. */
+@Composable
+private fun WholeRows(gap: Dp, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Layout(content, modifier) { measurables, constraints ->
+        val each = constraints.copy(minWidth = 0, minHeight = 0, maxHeight = Constraints.Infinity)
+        val rows = ArrayList<Pair<Placeable, Int>>()
+        var y = 0
+        for (measurable in measurables) {
+            val row = measurable.measure(each)
+            if (y + row.height > constraints.maxHeight) break
+            rows += row to y
+            y += row.height + gap.roundToPx()
+        }
+        layout(constraints.maxWidth, constraints.maxHeight) { rows.forEach { (row, top) -> row.place(0, top) } }
+    }
+}
+
+/** Makes the content [extra] taller than the room it was given. The extra hangs below; nothing else moves. */
+private fun Modifier.growDown(extra: Dp) = layout { measurable, constraints ->
+    if (!constraints.hasBoundedHeight) {
+        val placeable = measurable.measure(constraints)
+        return@layout layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
+    val more = extra.roundToPx()
+    val placeable = measurable.measure(
+        constraints.copy(minHeight = constraints.minHeight + more, maxHeight = constraints.maxHeight + more),
+    )
+    layout(placeable.width, placeable.height - more) { placeable.place(0, 0) }
 }
 
 /** An icon, a headline and a sentence: the shape of every "nothing to list" message on this card. */
@@ -222,17 +398,8 @@ private fun DeployRow(run: DeployRun) {
         ) {
             StatusIcon(outcome)
             Column(Modifier.weight(1f)) {
-                Text(
-                    buildAnnotatedString {
-                        append(run.repo)
-                        withStyle(SpanStyle(color = c.textMuted, fontWeight = HiveTokens.Font.Weight.regular)) {
-                            append(" ${run.workflow}")
-                        }
-                    },
-                    style = HiveType.title,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                // The repository is in the card's header.
+                Text(run.workflow, style = HiveType.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(detail(run), color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             when (outcome) {

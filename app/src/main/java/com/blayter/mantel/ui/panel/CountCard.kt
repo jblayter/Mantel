@@ -1,5 +1,12 @@
 package com.blayter.mantel.ui.panel
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +49,9 @@ import com.blayter.mantel.ui.theme.HiveType
 
 // Sizes from the approved mockup that are not in tokens.json.
 private val ContentHeight = 216.dp
+
+/** Height of the trend alone, which is all the card shows while deploys are active. */
+private val CompactContentHeight = 74.dp
 private val KindLineGap = 2.dp
 private val DotSize = 18.dp
 private val TrendRadius = 10.dp
@@ -50,14 +61,22 @@ private const val COUNT_LINE_HEIGHT_EM = 0.85f
 /** Count of containers the trend's vertical scale tops out at. */
 private const val TREND_SCALE = 14f
 
-/** The big container count, the breakdown by kind, and the 30-minute stacked trend. */
+/**
+ * The big container count, the breakdown by kind, and the 30-minute stacked trend.
+ *
+ * @param compact only the trend: the count and breakdown fade out and the card shrinks to fit.
+ */
 @Composable
 fun CountCard(
     containers: List<ContainerStatus>,
     trend: List<CountSample>,
     modifier: Modifier = Modifier,
     stale: Boolean = false,
+    compact: Boolean = false,
 ) {
+    val contentHeight by animateDpAsState(
+        if (compact) CompactContentHeight else ContentHeight, tween(ModeChangeMillis), label = "count height",
+    )
     val live = containers.filter { it.isLive }
     fun count(kind: ContainerKind) = live.count { it.kind == kind }
     val missingRunners = containers.count { it.isMissing && it.kind == ContainerKind.Runner }
@@ -65,10 +84,15 @@ fun CountCard(
         Column(
             Modifier
                 .padding(horizontal = HiveTokens.Card.paddingX, vertical = HiveTokens.Card.paddingY)
-                .height(ContentHeight),
-            verticalArrangement = Arrangement.spacedBy(HiveTokens.Space.s8),
+                .height(contentHeight),
         ) {
+            AnimatedVisibility(
+                visible = !compact,
+                enter = fadeIn(tween(ModeChangeMillis)) + expandVertically(tween(ModeChangeMillis), expandFrom = Alignment.Top),
+                exit = fadeOut(tween(ModeChangeMillis / 2)) + shrinkVertically(tween(ModeChangeMillis), shrinkTowards = Alignment.Top),
+            ) {
             Row(
+                Modifier.padding(bottom = HiveTokens.Space.s8),
                 horizontalArrangement = Arrangement.spacedBy(HiveTokens.Card.paddingX),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -83,6 +107,7 @@ fun CountCard(
                     KindLine(ContainerKind.Database, count(ContainerKind.Database), "job databases")
                     KindLine(ContainerKind.Job, count(ContainerKind.Job), "job containers")
                 }
+            }
             }
             Box(Modifier.fillMaxWidth().weight(1f)) {
                 CountTrend(trend, Modifier.fillMaxSize())
