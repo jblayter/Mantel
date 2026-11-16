@@ -117,4 +117,53 @@ class DashboardRepositoryTest {
         assertEquals(DashboardRepository.TREND_SAMPLES, state.countTrend.size)
         assertEquals(DashboardRepository.TREND_SAMPLES, state.hostTrends.cpuPercent.size)
     }
+
+    @Test
+    fun turnsStaleAfterThreeUnansweredPollsAndRecovers() {
+        val repository = DashboardRepository(
+            unused, noDeploys, thresholds, { clock }, expectedRunners = runners,
+            wallClock = { java.time.LocalTime.of(14, 32) },
+        )
+        repository.onHostFailure()
+        assertNull("nothing to show before the first reading", repository.state.value)
+
+        repository.poll(raw("rxflow-runner-runner-1"), raw("reach-runner-runner-1"))
+        clock += 3.seconds
+        repository.onHostFailure()
+        clock += 3.seconds
+        repository.onHostFailure()
+        assertNull(repository.state.value!!.stale)
+
+        clock += 114.seconds
+        repository.onHostFailure()
+        val stale = repository.state.value!!.stale!!
+        assertEquals(2.minutes, stale.unansweredFor)
+        assertEquals(java.time.LocalTime.of(14, 32), stale.lastReadingAt)
+        assertEquals("the last reading stays on screen", 2, repository.state.value!!.containers.size)
+
+        repository.poll(raw("rxflow-runner-runner-1"), raw("reach-runner-runner-1"))
+        assertNull(repository.state.value!!.stale)
+    }
+
+    @Test
+    fun aRejectedTokenKeepsTheLastRunsAndSaysWhenTheyWereSeen() {
+        val seenAt = java.time.LocalTime.of(14, 14)
+        val repository = DashboardRepository(unused, noDeploys, thresholds, { clock }, expectedRunners = runners, wallClock = { seenAt })
+        repository.poll(raw("rxflow-runner-runner-1"))
+        assertEquals(com.blayter.mantel.domain.DeployStatus.Waiting, repository.state.value!!.deployStatus)
+
+        val run = com.blayter.mantel.domain.DeployRun(
+            "rxflow", "Deploy", "Fix", "main", com.blayter.mantel.domain.DeployOutcome.Passed(2.minutes, 6.minutes),
+        )
+        repository.onDeploys(listOf(run))
+        assertEquals(com.blayter.mantel.domain.DeployStatus.Live, repository.state.value!!.deployStatus)
+
+        repository.onDeployFailure(DeployFailure.TokenRejected)
+        assertEquals(com.blayter.mantel.domain.DeployStatus.TokenExpired(seenAt), repository.state.value!!.deployStatus)
+        assertEquals(listOf(run), repository.state.value!!.deploys)
+
+        // The status survives the next host poll.
+        repository.poll(raw("rxflow-runner-runner-1"))
+        assertEquals(com.blayter.mantel.domain.DeployStatus.TokenExpired(seenAt), repository.state.value!!.deployStatus)
+    }
 }

@@ -1,6 +1,7 @@
 package com.blayter.mantel.domain
 
 import com.blayter.mantel.data.mock.MockContainers
+import kotlin.time.Duration
 import com.blayter.mantel.ui.hive.hiveGeometry
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -18,6 +19,16 @@ class HiveRulesTest {
         assertEquals("reach 2", names.first())
         assertEquals("quirky_banach", names.last())
         assertEquals(listOf("rxflow 2", "rxflow 1", "e2e-web-1", "reach 1"), names.subList(1, 5))
+    }
+
+    @Test
+    fun idleContainersHoldTheirOrder() {
+        fun idle(name: String, average: Double) =
+            ContainerStatus(name, name, ContainerKind.Runner, Presence.Live(Duration.ZERO), averageCores = average)
+        val a = listOf(idle("b", 0.0004), idle("a", 0.0001), idle("c", 0.0))
+        val b = listOf(idle("b", 0.0), idle("a", 0.0003), idle("c", 0.0009))
+        assertEquals(listOf("a", "b", "c"), sortForHive(a, HiveSort.Busiest).map { it.name })
+        assertEquals(listOf("a", "b", "c"), sortForHive(b, HiveSort.Busiest).map { it.name })
     }
 
     @Test

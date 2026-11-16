@@ -7,13 +7,19 @@ import kotlin.time.Duration
 
 enum class HiveSort(val label: String) { Busiest("Busiest"), Memory("Memory"), Name("Name") }
 
-/** Missing runners are pinned first and ended containers last; [sort] orders the rest. */
+/**
+ * Missing runners are pinned first and ended containers last; [sort] orders the rest.
+ * Busiest compares cores as the cell prints them (one decimal) and breaks ties
+ * by name, so a hive of idle containers holds still instead of reshuffling on
+ * differences nobody can see.
+ */
 fun sortForHive(containers: List<ContainerStatus>, sort: HiveSort): List<ContainerStatus> {
     val pin = compareBy<ContainerStatus> { if (it.isMissing) 0 else if (it.isEnded) 2 else 1 }
     return containers.sortedWith(
         when (sort) {
-            HiveSort.Busiest -> pin.thenByDescending { if (it.isLive) it.averageCores else -1.0 }
-            HiveSort.Memory -> pin.thenByDescending { if (it.isLive) it.memoryMb else -1 }
+            HiveSort.Busiest ->
+                pin.thenByDescending { if (it.isLive) (it.averageCores * 10).roundToInt() else -1 }.thenBy { it.name }
+            HiveSort.Memory -> pin.thenByDescending { if (it.isLive) it.memoryMb else -1 }.thenBy { it.name }
             HiveSort.Name -> pin.thenBy { it.name }
         },
     )

@@ -12,3 +12,6 @@ captures/
 .idea/
 *.iml
 .DS_Store
+
+# The pushed display config. It will hold the GitHub token: never commit it.
+/mantel-config.json

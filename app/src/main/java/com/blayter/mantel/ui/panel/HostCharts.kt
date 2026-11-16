@@ -22,6 +22,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.tv.material3.Text
+import com.blayter.mantel.data.DashboardRepository.Companion.TREND_SAMPLES
 import com.blayter.mantel.domain.HostInfo
 import com.blayter.mantel.domain.HostTrends
 import com.blayter.mantel.ui.theme.HiveTokens
@@ -43,7 +44,7 @@ private fun one(v: Float) = String.format(Locale.US, "%.1f", v)
 
 /** CPU, memory and load: one big number and an area chart each. */
 @Composable
-fun HostCharts(host: HostInfo, trends: HostTrends, modifier: Modifier = Modifier) {
+fun HostCharts(host: HostInfo, trends: HostTrends, modifier: Modifier = Modifier, stale: Boolean = false) {
     val cpu = trends.cpuPercent.lastOrNull() ?: 0f
     val memory = trends.memoryGb.lastOrNull() ?: 0f
     val load = trends.load.lastOrNull() ?: 0f
@@ -56,6 +57,7 @@ fun HostCharts(host: HostInfo, trends: HostTrends, modifier: Modifier = Modifier
             series = trends.cpuPercent,
             scaleMax = 100f,
             valueColor = if (cpu >= CPU_TROUBLE_PERCENT) HiveTokens.Color.Status.trouble else HiveTokens.Color.textBright,
+            stale = stale,
             modifier = Modifier.weight(1f),
         )
         HostChart(
@@ -65,6 +67,7 @@ fun HostCharts(host: HostInfo, trends: HostTrends, modifier: Modifier = Modifier
             sub = "${(memory / host.memoryTotalGb * 100).roundToInt()}% of ${host.memoryTotalGb} GB",
             series = trends.memoryGb,
             scaleMax = host.memoryTotalGb.toFloat(),
+            stale = stale,
             modifier = Modifier.weight(1f),
         )
         HostChart(
@@ -74,8 +77,27 @@ fun HostCharts(host: HostInfo, trends: HostTrends, modifier: Modifier = Modifier
             sub = "5 m ${one(trends.load5)} · 15 m ${one(trends.load15)}",
             series = trends.load,
             scaleMax = host.threads.toFloat(),
+            stale = stale,
             modifier = Modifier.weight(1f),
         )
+    }
+}
+
+/** The three host cards before the first reading: titles, and dashes where the numbers will be. */
+@Composable
+fun HostChartsPlaceholder(modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(HiveTokens.Space.s16)) {
+        listOf("CPU", "Memory", "Load").forEach { title ->
+            HiveCard(Modifier.weight(1f).fillMaxHeight()) {
+                Column(
+                    Modifier.padding(horizontal = HiveTokens.Space.s20, vertical = HiveTokens.Space.s16),
+                    verticalArrangement = Arrangement.spacedBy(TextGap),
+                ) {
+                    Text(title, style = HiveType.bodyBold, color = HiveTokens.Color.textMuted)
+                    Text("—", style = HiveType.hostNumber.copy(lineHeight = 1.em), color = HiveTokens.Color.textDim)
+                }
+            }
+        }
     }
 }
 
@@ -87,6 +109,7 @@ private fun HostChart(
     sub: String,
     series: List<Float>,
     scaleMax: Float,
+    stale: Boolean,
     modifier: Modifier = Modifier,
     valueColor: Color = HiveTokens.Color.textBright,
 ) {
@@ -105,7 +128,7 @@ private fun HostChart(
                         }
                     },
                     style = HiveType.hostNumber.copy(lineHeight = 1.em),
-                    color = valueColor,
+                    color = if (stale) HiveTokens.Color.textDim else valueColor,
                     maxLines = 1,
                 )
                 Text(
@@ -116,28 +139,32 @@ private fun HostChart(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            AreaChart(series, scaleMax, Modifier.fillMaxWidth().weight(1f))
+            AreaChart(series, scaleMax, stale, Modifier.fillMaxWidth().weight(1f))
         }
     }
 }
 
-/** Filled area with an amber line on top, edge to edge across the card. */
+/** Filled area with an amber line on top, edge to edge across the card. Grey when the reading is stale. */
 @Composable
-private fun AreaChart(series: List<Float>, scaleMax: Float, modifier: Modifier = Modifier) {
+private fun AreaChart(series: List<Float>, scaleMax: Float, stale: Boolean, modifier: Modifier = Modifier) {
+    val fill = if (stale) HiveTokens.Color.track else HiveTokens.Color.chartFill
+    val stroke = if (stale) HiveTokens.Color.textDim else HiveTokens.Color.amber
     Canvas(modifier) {
         if (series.size < 2) return@Canvas
-        val stepX = size.width / (series.size - 1)
+        // Always the full window wide, newest at the right edge.
+        val stepX = size.width / (TREND_SAMPLES - 1)
+        val startX = size.width - (series.size - 1) * stepX
         fun y(v: Float) = size.height * (1 - v.coerceIn(0f, scaleMax) / scaleMax * CHART_HEADROOM)
         val line = Path().apply {
-            series.forEachIndexed { i, v -> if (i == 0) moveTo(0f, y(v)) else lineTo(i * stepX, y(v)) }
+            series.forEachIndexed { i, v -> if (i == 0) moveTo(startX, y(v)) else lineTo(startX + i * stepX, y(v)) }
         }
         val area = Path().apply {
             addPath(line)
             lineTo(size.width, size.height)
-            lineTo(0f, size.height)
+            lineTo(startX, size.height)
             close()
         }
-        drawPath(area, HiveTokens.Color.chartFill)
-        drawPath(line, HiveTokens.Color.amber, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawPath(area, fill)
+        drawPath(line, stroke, style = Stroke(LineWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }

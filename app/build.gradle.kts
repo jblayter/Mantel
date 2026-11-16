@@ -121,6 +121,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1"
+
+        // `./gradlew :app:installDebug -Pmantel.mock=true` builds the all-mock app,
+        // for working on the screen without access to the CI box.
+        buildConfigField("boolean", "MOCK_DATA", (providers.gradleProperty("mantel.mock").orNull == "true").toString())
     }
 
     buildTypes {
@@ -140,6 +144,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -158,8 +163,15 @@ dependencies {
     // Compose for TV. 1.0.1 is the stable release that matches this Compose BOM.
     implementation("androidx.tv:tv-material:1.0.1")
 
+    // JSON as a tree (Glances replies, the pushed config file); no compiler plugin needed.
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    // Encrypted storage for the pushed config. Same version as the KrakenTV board.
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-tooling-preview")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 }
