@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.seconds
  *
  * Memory is in binary units throughout (1 GB = 1024 MB = 2^30 bytes), which
  * is what Glances and `docker stats` display: a `4g` cap reads as 4.0 GB and
- * the 64 GB machine as 59 GB.
+ * a 64 GB machine as 59 GB.
  */
 object GlancesParser {
     private const val BYTES_PER_MB = 1024.0 * 1024.0

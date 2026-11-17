@@ -71,7 +71,10 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   (Android 11) refuses a push into `/sdcard/Android/data`, so the route is
   `/data/local/tmp` then `run-as cp` into internal storage.
 - The CI box is `192.168.6.35`; the Fire TV (`192.168.6.226`) cannot resolve
-  `ci-runner01.local`, so configs carry the IP.
+  `.local` names, so configs carry the IP.
+- The box's name, thread count and total memory on screen come from Glances
+  (`/system` hostname, `/load` cpucore, `/mem` total). Never hard-code them;
+  the name and size in `data/mock` are only the mockup's sample values.
 - `mantel-config.json` at the repo root is gitignored and may hold the owner's
   GitHub token. Never read, print or push it; the owner pushes it themselves.
 - If the TV cannot encrypt, the token is not stored and the deploys card says so.
@@ -92,7 +95,8 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   suggestion, so four runs fit.
 - The mock deploy source loops every 5 minutes: 3 active, then 2 pretending
   hours have passed, so both states can be seen.
-- Memory is in binary units (the 64 GB box reads 59 GB, a `4g` cap 4.0 GB).
+- Memory is in binary units, as Glances and `docker stats` show it (a 64 GB
+  box reads 59 GB, a `4g` cap 4.0 GB).
 - Glances reports container uptime only as rounded words ("6 hours").
 
 ## Product constraints
@@ -110,8 +114,8 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 ## Data sources
 
 - Glances REST API on the CI box, no login, home network only:
-  `http://ci-runner01.local:61208/api/4/containers`, `/quicklook`, `/mem`,
-  `/load`. Poll every 3-5 seconds. Glances keeps no history, so hold recent
+  `<glancesUrl>/api/4/containers`, `/quicklook`, `/mem`, `/load` every poll,
+  and `/system` once for the hostname. Poll every 3-5 seconds. Glances keeps no history, so hold recent
   samples in memory for trends.
 - GitHub Actions workflow runs via the GitHub REST API with a personal access
   token, polled every 30-60 seconds.
