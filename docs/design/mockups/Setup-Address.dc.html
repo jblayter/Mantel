@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mantel · Setup, enter an address</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=DM+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#2B1E15}
+@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(6px,4px)}}
+.drift{animation:drift 900s ease-in-out infinite alternate}
+.disp{font-family:'Fraunces',Georgia,serif;font-variant-numeric:tabular-nums}
+.hex{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.card{background:#3A2A1E;border:3px solid #5C4431;border-radius:8px}
+.btn{font-size:24px;font-weight:700;border-radius:8px;padding:12px 26px;border:3px solid #5C4431;background:#3A2A1E;color:#E0D3BD;white-space:nowrap}
+.btn.primary{background:#F0B45A;border-color:#F0B45A;color:#1A140C}
+.focus{border-color:#FFF8EA !important}
+.row{display:flex;align-items:center;gap:22px;padding:14px 22px}
+.key{display:flex;align-items:center;justify-content:center;width:132px;height:92px;font-size:52px;font-weight:500}
+</style>
+</helmet>
+<div style="width:1920px;height:1080px;box-sizing:border-box;padding:54px 96px;background:#2B1E15;color:#F2E9DA;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden">
+<div class="drift" style="height:100%;display:flex;flex-direction:column;gap:24px">
+
+<div style="display:flex;align-items:center;justify-content:space-between;height:64px;flex-shrink:0">
+<div style="display:flex;align-items:baseline;gap:22px">
+<div class="disp" style="font-size:48px;font-weight:700;color:#F0B45A">Mantel</div>
+<div style="font-size:26px;color:#D2C0A6">Setup · step 1 of 2 · machines</div>
+</div>
+<div class="disp" style="font-size:52px;font-weight:500">2:32</div>
+</div>
+
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:980px minmax(0,1fr);gap:32px;align-items:center">
+
+<section style="display:flex;flex-direction:column;gap:20px">
+<div class="disp" style="font-size:52px;font-weight:700;line-height:1.1;color:#FFF8EA">Enter the machine’s address</div>
+<div style="font-size:26px;line-height:1.4;color:#EADFCB">Use the numbers, not a name: most TVs cannot look up names like “mybox.local”.</div>
+<div class="card" style="padding:18px 26px;display:flex;align-items:baseline;gap:6px"><div class="disp" style="font-size:52px;font-weight:500;color:#FFF8EA">192.168.1.5</div><div style="width:4px;height:52px;background:#F0B45A;align-self:center"></div><div class="disp" style="font-size:52px;font-weight:500;color:#AD9D87;margin-left:auto">port 61208</div></div>
+<div style="font-size:24px;color:#D2C0A6">Glances answers on port 61208 unless you changed it.</div>
+<div style="display:flex;gap:16px;margin-top:8px"><div class="btn primary">Check this address</div><div class="btn">Change the port</div><div class="btn">Back</div></div>
+</section>
+
+<section style="display:flex;justify-content:center"><div style="display:grid;grid-template-columns:repeat(3,138px);gap:14px"><div class="card key disp" style="color:#FFF8EA">1</div><div class="card key disp" style="color:#FFF8EA">2</div><div class="card key disp" style="color:#FFF8EA">3</div><div class="card key disp" style="color:#FFF8EA">4</div><div class="card key disp focus" style="color:#FFF8EA">5</div><div class="card key disp" style="color:#FFF8EA">6</div><div class="card key disp" style="color:#FFF8EA">7</div><div class="card key disp" style="color:#FFF8EA">8</div><div class="card key disp" style="color:#FFF8EA">9</div><div class="card key disp" style="color:#FFF8EA">.</div><div class="card key disp" style="color:#FFF8EA">0</div><div class="card key" style="font-size:24px;font-weight:700;color:#E0D3BD;flex-direction:column;gap:2px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E0D3BD" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h11v14H9l-6-7z"></path><path d="M12 9.5l5 5M17 9.5l-5 5"></path></svg>Delete</div></div></section>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

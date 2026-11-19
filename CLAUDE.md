@@ -135,8 +135,19 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   dimmed last-seen rows and the not-stored card have not been seen on a device.
 - The active and maintenance states of the deploys card and its carousel have
   no mockup; they were built from the owner's description.
-- Not designed yet: run detail, the QR-and-phone-form setup, settings. Design
-  them in the Hive language before building.
+- Not designed yet: run detail, settings. Design them in the Hive language
+  before building.
+- Going to market: the owner wants both stores (Google Play and Amazon), will
+  register a GitHub App for device sign-in, and wants several machines per
+  TV. The on-TV setup that replaces the adb file is designed but not approved
+  or built (DESIGN.md, "On-TV setup"; `Setup-*` mockups). It replaced the
+  earlier QR-and-phone-form idea.
+- Several machines: the owner chose one on screen at a time, taking turns,
+  and rejected the first look (`Header-Machines` mockup, a row of names in the
+  header). Do not build it. The redesign brief for Claude Design is
+  `docs/design/handoff/PROMPT.md`; the `Setup-*` drafts go with it.
+- The data rules (kinds, expected runners, short names) describe the owner's
+  box and need a general form before a store release.
 - The screen turns stale after 3 unanswered polls
   (`STALE_AFTER_FAILED_POLLS`); provisional.
 - What the deploys card shows when GitHub fails for a reason other than the

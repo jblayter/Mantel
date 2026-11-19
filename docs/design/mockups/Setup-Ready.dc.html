@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mantel · Setup, ready</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=DM+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#2B1E15}
+@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(6px,4px)}}
+.drift{animation:drift 900s ease-in-out infinite alternate}
+.disp{font-family:'Fraunces',Georgia,serif;font-variant-numeric:tabular-nums}
+.hex{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.card{background:#3A2A1E;border:3px solid #5C4431;border-radius:8px}
+.btn{font-size:24px;font-weight:700;border-radius:8px;padding:12px 26px;border:3px solid #5C4431;background:#3A2A1E;color:#E0D3BD;white-space:nowrap}
+.btn.primary{background:#F0B45A;border-color:#F0B45A;color:#1A140C}
+.focus{border-color:#FFF8EA !important}
+.row{display:flex;align-items:center;gap:22px;padding:14px 22px}
+.key{display:flex;align-items:center;justify-content:center;width:132px;height:92px;font-size:52px;font-weight:500}
+</style>
+</helmet>
+<div style="width:1920px;height:1080px;box-sizing:border-box;padding:54px 96px;background:#2B1E15;color:#F2E9DA;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden">
+<div class="drift" style="height:100%;display:flex;flex-direction:column;gap:24px">
+
+<div style="display:flex;align-items:center;justify-content:space-between;height:64px;flex-shrink:0">
+<div style="display:flex;align-items:baseline;gap:22px">
+<div class="disp" style="font-size:48px;font-weight:700;color:#F0B45A">Mantel</div>
+<div style="font-size:26px;color:#D2C0A6">Setup · ready</div>
+</div>
+<div class="disp" style="font-size:52px;font-weight:500">2:32</div>
+</div>
+
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:980px minmax(0,1fr);gap:32px;align-items:center">
+
+<section style="display:flex;flex-direction:column;gap:20px">
+<div class="disp" style="font-size:52px;font-weight:700;line-height:1.1;color:#FFF8EA">Ready to start</div>
+<div class="card" style="padding:18px 26px;display:flex;flex-direction:column;gap:8px"><div style="font-size:24px;font-weight:700;color:#D2C0A6">Watching 2 machines</div><div style="display:flex;align-items:center;gap:14px;font-size:24px;color:#FFF8EA"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7"></path></svg><span>ci-runner01<span style="color:#D2C0A6"> · 192.168.1.50</span></span></div><div style="display:flex;align-items:center;gap:14px;font-size:24px;color:#FFF8EA"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7"></path></svg><span>attic-nas<span style="color:#D2C0A6"> · 192.168.1.61</span></span></div></div>
+<div class="card" style="padding:18px 26px;display:flex;flex-direction:column;gap:8px"><div style="font-size:24px;font-weight:700;color:#D2C0A6">Deploys from 3 repositories · signed in as octocat</div><div style="display:flex;align-items:center;gap:14px;font-size:24px;color:#FFF8EA"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7"></path></svg><span>octocat/storefront</span></div><div style="display:flex;align-items:center;gap:14px;font-size:24px;color:#FFF8EA"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7"></path></svg><span>octocat/api</span></div><div style="display:flex;align-items:center;gap:14px;font-size:24px;color:#FFF8EA"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7"></path></svg><span>octocat/infra</span></div></div>
+<div style="font-size:24px;line-height:1.4;color:#D2C0A6">To add or remove repositories, change what the Mantel app can read in your GitHub settings.</div>
+<div style="display:flex;gap:16px;margin-top:8px"><div class="btn primary focus">Start</div><div class="btn">Back</div></div>
+</section>
+
+<section style="display:flex;justify-content:center" aria-hidden="true"><div style="display:flex;flex-direction:column;width:535px"><div style="display:flex;gap:10px"><div style="position:relative;width:208px;height:240px;flex-shrink:0"><div class="hex" style="position:absolute;inset:0;background:#3A2A1E"></div><div class="hex" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(240,180,90,.42) 0,rgba(240,180,90,.42) 34%,transparent 34%)"></div><svg viewBox="0 0 208 240" width="208" height="240" style="position:absolute;inset:0"><polygon points="104,4 204,62 204,178 104,236 4,178 4,62" fill="none" stroke="#F0B45A" stroke-width="4" stroke-linejoin="round"></polygon></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center"><div style="font-size:20px;font-weight:700;letter-spacing:.06em;color:#D2C0A6">MACHINE</div><div style="font-size:23px;font-weight:700;color:#FFF8EA">ci-runner01</div><div style="font-size:20px;color:#E0D3BD">12 containers</div></div></div><div style="position:relative;width:208px;height:240px;flex-shrink:0"><div class="hex" style="position:absolute;inset:0;background:#3A2A1E"></div><div class="hex" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(240,180,90,.42) 0,rgba(240,180,90,.42) 34%,transparent 34%)"></div><svg viewBox="0 0 208 240" width="208" height="240" style="position:absolute;inset:0"><polygon points="104,4 204,62 204,178 104,236 4,178 4,62" fill="none" stroke="#F0B45A" stroke-width="4" stroke-linejoin="round"></polygon></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center"><div style="font-size:20px;font-weight:700;letter-spacing:.06em;color:#D2C0A6">MACHINE</div><div style="font-size:23px;font-weight:700;color:#FFF8EA">attic-nas</div><div style="font-size:20px;color:#E0D3BD">5 containers</div></div></div></div><div style="display:flex;gap:10px;margin-left:109px;margin-top:-51px"><div style="position:relative;width:208px;height:240px;flex-shrink:0"><div class="hex" style="position:absolute;inset:0;background:#2F2118"></div><svg viewBox="0 0 208 240" width="208" height="240" style="position:absolute;inset:0"><polygon points="104,4 204,62 204,178 104,236 4,178 4,62" fill="none" stroke="#6B5442" stroke-width="4" stroke-dasharray="12 10" stroke-linejoin="round"></polygon></svg></div><div style="position:relative;width:208px;height:240px;flex-shrink:0"><div class="hex" style="position:absolute;inset:0;background:#2F2118"></div><svg viewBox="0 0 208 240" width="208" height="240" style="position:absolute;inset:0"><polygon points="104,4 204,62 204,178 104,236 4,178 4,62" fill="none" stroke="#6B5442" stroke-width="4" stroke-dasharray="12 10" stroke-linejoin="round"></polygon></svg></div></div></div></section>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

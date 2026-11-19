@@ -206,6 +206,65 @@ screen's frame, header, cards and type. Nothing in them can be focused.
 - **Deploys, no recent runs**: a dim circle-and-dash icon, "No recent runs",
   and one sentence naming the repositories and the 7-day window.
 
+## On-TV setup — designed, not built, not yet approved by the owner
+
+Replaces the adb-pushed file for people who install from a store. Mockups:
+`Setup-Machines`, `Setup-NoMachines`, `Setup-Address`, `Setup-GitHub`,
+`Setup-Ready`. The pushed file stays as a developer route. Nothing long is
+ever typed with the remote, and no token is typed at all.
+
+All five screens use the main frame: the header with "Setup · step 1 of 2 ·
+machines" where the host summary goes, the 980px left column for the question
+and its controls, and the right column for one supporting picture.
+
+1. **Machines.** Mantel asks every address on the TV's own network for Glances
+   on port 61208 and lists what answers: the name from `/system`, then
+   address, threads, memory and container count. Each row is a checkbox with
+   the word "Watching" or "Not watching"; more than one can be picked. The
+   right column is a comb of four cells, one lit per machine picked. A spinner
+   line counts addresses checked while the search runs.
+2. **No machines.** Says what Glances is in one sentence and sends the person
+   to their phone (QR and a short address) for the one command that starts it.
+   A long command is never shown on the TV to be retyped.
+3. **Enter an address.** A number pad (digits, dot, Delete) for a machine the
+   search cannot reach. The port is shown dim and changed on request.
+4. **Deploys (optional).** GitHub's device sign-in: a QR and
+   `github.com/login/device`, with the code in display-xl. "Skip for now" has
+   the first focus, so setup finishes without GitHub.
+5. **Ready.** Lists the machines and repositories, then "Start".
+
+Rules:
+
+- Buttons are cards with the label in 24px bold. The main action is an amber
+  fill with dark text. Focus is the usual 3px `#FFF8EA` border.
+- A QR code sits on a `Text secondary` tile with ground-colored squares. It is
+  the one large bright area allowed, because these screens are never left on.
+- Repositories are not picked on the TV. They are whatever the person let the
+  Mantel GitHub App read; the Ready screen says where to change that.
+- Still to design: "nothing answered at this address", the password prompt for
+  a protected Glances, "signed in but the app can read no repositories", the
+  expired code, and the settings screen that reopens all of this later.
+
+## Several machines — decided, look not designed
+
+The owner chose one machine on screen at a time, taking turns. A first draft
+that turned the header's host summary into a row of machine names
+(`Header-Machines` mockup) was **rejected by the owner**; do not build it. The
+look is being redesigned. The brief is in `handoff/PROMPT.md`.
+
+What is settled:
+
+- With one machine the screen is exactly as approved.
+- The hive, the warnings under it, the count card and the host cards belong
+  to the machine on screen. The deploys card does not change with the machine.
+- A machine in trouble, or not answering, must be visible while another
+  machine is on screen.
+- Every machine is polled all the time, so its trends are complete when its
+  turn comes.
+
+Not settled: how the machines are shown, how long a turn is, whether a machine
+in trouble gets a longer turn, and what happens beyond four machines.
+
 ## Deploy rules
 
 Source is the GitHub Actions REST API, fetched every 45 seconds per repository.
