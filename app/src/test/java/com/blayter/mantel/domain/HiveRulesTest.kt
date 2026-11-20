@@ -48,10 +48,19 @@ class HiveRulesTest {
             listOf(
                 Warning("rxflow 2", "has held about 12 cores for 14 min", Severity.Busy),
                 Warning("reach 2", "should be running but has been gone for 3 min", Severity.Wrong),
-                Warning("krakentv 1", "is at 90% of its 4 GB memory cap", Severity.Wrong),
+                Warning("krakentv 1", "is at 90% of its 4 GB memory cap", Severity.Wrong, brief = "is at 90% of its memory cap"),
             ),
             warnings,
         )
+    }
+
+    @Test
+    fun coralWarningsTakeTheLinesWhenNotAllFit() {
+        val two = warningsFor(sample, memoryNearCapPercent = 85, max = 2)
+        assertEquals(listOf("reach 2", "krakentv 1"), two.map { it.who })
+        assertEquals(listOf(Severity.Wrong, Severity.Wrong), two.map { it.severity })
+        val one = warningsFor(sample, memoryNearCapPercent = 85, max = 1)
+        assertEquals(listOf("reach 2"), one.map { it.who })
     }
 
     @Test

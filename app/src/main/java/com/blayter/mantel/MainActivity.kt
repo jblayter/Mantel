@@ -19,15 +19,19 @@ import com.blayter.mantel.data.config.ConfigFile
 import com.blayter.mantel.data.config.ConfigFileResult
 import com.blayter.mantel.data.config.ConfigStore
 import com.blayter.mantel.data.config.StoredConfig
+import com.blayter.mantel.data.config.hostOf
 import com.blayter.mantel.data.github.GitHubDeploySource
 import com.blayter.mantel.data.github.GitHubRuns
 import com.blayter.mantel.data.glances.GlancesHostSource
 import com.blayter.mantel.data.mock.MockDashboard
 import com.blayter.mantel.data.mock.MockDeploySource
 import com.blayter.mantel.data.mock.MockHostSource
+import com.blayter.mantel.data.mock.MockMachines
+import com.blayter.mantel.domain.ExpectedRunners
 import com.blayter.mantel.domain.Thresholds
 import com.blayter.mantel.ui.DashboardScreen
 import com.blayter.mantel.ui.LoadingScreen
+import com.blayter.mantel.ui.MachinesScreen
 import com.blayter.mantel.ui.SetupScreen
 import com.blayter.mantel.ui.theme.HiveTokens
 import com.blayter.mantel.ui.theme.MantelTheme
@@ -44,9 +48,10 @@ import kotlin.time.TimeSource
 
 /** A running data pipeline and what the screen should say about it. */
 private class Session(
-    val repository: DashboardRepository,
-    /** Where the host data comes from, for the loading screen. */
-    val address: String,
+    /** One per machine, the first one first. Each polls its machine the whole time. */
+    val repositories: List<DashboardRepository>,
+    /** Where each machine's data comes from, for the loading screen and until it says its name. */
+    val addresses: List<String>,
     /** Label beside the weekday while some of the data is not real. */
     val dataNote: String?,
     /** Short names of the repositories the deploys card watches. */
@@ -68,7 +73,8 @@ class MainActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         if (BuildConfig.MOCK_DATA) {
-            session = open(MockHostSource(elapsed), MockDeploySource(elapsed), "mock", "mock data", MockDashboard.seed)
+            val machines = listOf(MockHostSource(elapsed) to "mock") + MockMachines.extra(BuildConfig.MOCK_MACHINES - 1, elapsed)
+            session = open(machines, MockDeploySource(elapsed), "mock data", MockDashboard.seed)
         } else {
             lifecycleScope.launch { followConfig() }
         }
@@ -79,8 +85,14 @@ class MainActivity : ComponentActivity() {
                 if (current == null) {
                     SetupScreen(fileProblem)
                 } else {
-                    val state by current.repository.state.collectAsStateWithLifecycle()
-                    state?.let { DashboardScreen(it, current.dataNote, current.repoNames) } ?: LoadingScreen(current.address)
+                    val states = current.repositories.map { it.state.collectAsStateWithLifecycle().value }
+                    if (states.size == 1) {
+                        // One machine: the approved screen, exactly.
+                        states[0]?.let { DashboardScreen(it, current.dataNote, current.repoNames) }
+                            ?: LoadingScreen(current.addresses[0])
+                    } else {
+                        MachinesScreen(states, current.addresses, current.dataNote, current.repoNames)
+                    }
                 }
             }
         }
@@ -112,46 +124,52 @@ class MainActivity : ComponentActivity() {
         val config = stored.config
         val token = config.githubToken
         session?.job?.cancel()
+        val machines = config.glancesUrls.map { GlancesHostSource(it) to hostOf(it) }
         session = when {
             // The token could not be encrypted on this TV, so there is none. The deploys card says so.
-            stored.tokenNotStored ->
-                open(GlancesHostSource(config.glancesUrl), NoToken, config.glancesHost, null, repos = config.repos)
-            token != null -> open(
-                GlancesHostSource(config.glancesUrl), GitHubDeploySource(token, config.repos),
-                config.glancesHost, null, repos = config.repos,
-            )
+            stored.tokenNotStored -> open(machines, NoToken, null, repos = config.repos)
+            token != null -> open(machines, GitHubDeploySource(token, config.repos), null, repos = config.repos)
             // No GitHub details in the config: deploys stay on the mock, and the header says so.
-            else -> open(GlancesHostSource(config.glancesUrl), MockDeploySource(elapsed), config.glancesHost, "sample deploys")
+            else -> open(machines, MockDeploySource(elapsed), "sample deploys")
         }
     }
 
-    /** The one place that chooses data sources. */
+    /**
+     * The one place that chooses data sources. Each machine gets its own
+     * repository, which holds that machine's history; they share one deploy
+     * source, which answers from its last fetch.
+     *
+     * @param machines each machine's source and address, the first one first.
+     */
     private fun open(
-        hostSource: HostSource,
+        machines: List<Pair<HostSource, String>>,
         deploySource: DeploySource,
-        address: String,
         dataNote: String?,
         seed: RepositorySeed = RepositorySeed(),
         repos: List<String> = emptyList(),
     ): Session {
         val proposed = HiveTokens.ThresholdsProposed
-        val repository = DashboardRepository(
-            hostSource = hostSource,
-            deploySource = deploySource,
-            thresholds = Thresholds(
-                memoryNearCapPercent = proposed.memoryNearCapPercent,
-                sustainedCores = proposed.sustainedCpuCores.toDouble(),
-                sustainedFor = proposed.sustainedCpuMinutes.minutes,
-                endedLinger = proposed.endedLingerSeconds.seconds,
-            ),
-            now = elapsed,
-            seed = seed,
-            // Asked every second so running timers tick; the GitHub source only goes to the network every 45 s.
-            deployPollEvery = 1.seconds,
-        )
         val job = Job(lifecycleScope.coroutineContext[Job])
-        repository.start(lifecycleScope + job)
-        return Session(repository, address, dataNote, repos.map(GitHubRuns::shortRepo), job)
+        val repositories = machines.mapIndexed { i, (hostSource, _) ->
+            DashboardRepository(
+                hostSource = hostSource,
+                deploySource = deploySource,
+                thresholds = Thresholds(
+                    memoryNearCapPercent = proposed.memoryNearCapPercent,
+                    sustainedCores = proposed.sustainedCpuCores.toDouble(),
+                    sustainedFor = proposed.sustainedCpuMinutes.minutes,
+                    endedLinger = proposed.endedLingerSeconds.seconds,
+                ),
+                now = elapsed,
+                // Only the first machine is the CI box: it alone has the sample history
+                // and the runners that are expected to be present.
+                seed = if (i == 0) seed else RepositorySeed(),
+                expectedRunners = if (i == 0) ExpectedRunners else emptyList(),
+                // Asked every second so running timers tick; the GitHub source only goes to the network every 45 s.
+                deployPollEvery = 1.seconds,
+            ).also { it.start(lifecycleScope + job) }
+        }
+        return Session(repositories, machines.map { it.second }, dataNote, repos.map(GitHubRuns::shortRepo), job)
     }
 
     private companion object {

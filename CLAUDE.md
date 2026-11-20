@@ -58,6 +58,13 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 - `MainActivity.open()` is the only place that chooses sources. No config shows
   `SetupScreen`; a config with no reading yet shows `LoadingScreen`; unanswered
   polls set `DashboardState.stale` and the dashboard dims to the last reading.
+- Several machines: one `DashboardRepository` per machine, all polling all the
+  time and sharing one deploy source. `ui/MachinesScreen` runs the turns,
+  `ui/panel/MachineShelf` draws the plaques, and the rules (summaries, turn
+  order and length, which plaques show) are pure, in `domain/MachineRules`.
+  One machine never goes through any of this.
+- `-Pmantel.mock=true -Pmantel.mockMachines=3` adds sample machines (one with
+  a warning, one that stops answering after 20 s); 6 shows the "N more" plaque.
 - `-Pmantel.mock=true` builds the all-mock app that opens on the mockup's sample
   screen.
 
@@ -97,6 +104,9 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   hours have passed, so both states can be seen.
 - Memory is in binary units, as Glances and `docker stats` show it (a 64 GB
   box reads 59 GB, a `4g` cap 4.0 GB).
+- When more warnings apply than there are lines (three, or two with the
+  shelf), coral ones are listed first, each color in cell order. When all fit
+  they stay in cell order. Owner's decision, 2026-11-19.
 - Glances reports container uptime only as rounded words ("6 hours").
 
 ## Product constraints
@@ -153,12 +163,13 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 - What the deploys card shows when GitHub fails for a reason other than the
   token (wrong repository name, no network): today it keeps what it had.
 - reach and krakentv repositories are not in the config yet.
+- Several machines: only the first machine in the config has expected runners;
+  whether other machines need their own list is undecided.
+- The machine change and the deploys carousel are not kept apart in time yet.
 - Whether the table-style container list becomes a drill-in screen.
 - The short-name rule for non-runner containers (`shortNameOf`) is an
   assumption that matches the mockup; check it against the real container list.
 - What time window the CPU, memory and load charts cover (now 60 samples).
-- Whether coral warnings should be listed before amber ones when more than
-  three apply.
 - The launcher banner is a placeholder, not designed art.
 
 ## Working agreements

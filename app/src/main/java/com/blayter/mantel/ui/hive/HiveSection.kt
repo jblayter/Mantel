@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
 import com.blayter.mantel.domain.ContainerStatus
 import com.blayter.mantel.domain.HiveSort
+import com.blayter.mantel.domain.MAX_WARNINGS
 import com.blayter.mantel.domain.Severity
 import com.blayter.mantel.domain.StaleReading
 import com.blayter.mantel.domain.formatAge
@@ -69,11 +70,14 @@ fun HiveSection(
     hostName: String,
     stale: StaleReading?,
     modifier: Modifier = Modifier,
+    /** Smaller hive and fewer warning lines, when the machine shelf needs the room. */
+    hiveScale: Float = 1f,
+    maxWarnings: Int = MAX_WARNINGS,
 ) {
     var sort by rememberSaveable { mutableStateOf(HiveSort.Busiest) }
     val sorted = remember(containers, sort) { sortForHive(containers, sort) }
-    val warnings = remember(containers) {
-        warningsFor(containers, HiveTokens.ThresholdsProposed.memoryNearCapPercent)
+    val warnings = remember(containers, maxWarnings) {
+        warningsFor(containers, HiveTokens.ThresholdsProposed.memoryNearCapPercent, maxWarnings)
     }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(HiveTokens.Space.s16)) {
         Row(
@@ -94,7 +98,7 @@ fun HiveSection(
                 HiveSort.entries.forEach { SortChip(it.label, selected = it == sort) { sort = it } }
             }
         }
-        HiveGrid(sorted, stale = stale != null)
+        HiveGrid(sorted, stale = stale != null, scale = hiveScale)
         Column(verticalArrangement = Arrangement.spacedBy(HiveTokens.Space.s8)) {
             if (stale == null) {
                 warnings.forEach { WarningLine(it) }

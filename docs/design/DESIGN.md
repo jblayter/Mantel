@@ -245,25 +245,65 @@ Rules:
   a protected Glances, "signed in but the app can read no repositories", the
   expired code, and the settings screen that reopens all of this later.
 
-## Several machines — decided, look not designed
+## Several machines — the shelf
 
-The owner chose one machine on screen at a time, taking turns. A first draft
-that turned the header's host summary into a row of machine names
-(`Header-Machines` mockup) was **rejected by the owner**; do not build it. The
-look is being redesigned. The brief is in `handoff/PROMPT.md`.
+Approved by the owner and built. Mockups: `Shelf` (a warning and a silent
+machine elsewhere), `Shelf-AllWell`, `Shelf-Paused`, `Shelf-Two`, `Shelf-Six`.
+Two other directions (a column of machine cells, and a large nameplate with
+pips) and an earlier header of machine names were not chosen.
 
-What is settled:
+One machine is on screen at a time and they take turns. Every machine is
+polled all the time, so its trends are complete when its turn comes.
 
-- With one machine the screen is exactly as approved.
-- The hive, the warnings under it, the count card and the host cards belong
-  to the machine on screen. The deploys card does not change with the machine.
-- A machine in trouble, or not answering, must be visible while another
-  machine is on screen.
-- Every machine is polled all the time, so its trends are complete when its
-  turn comes.
+- With one machine the screen is exactly as approved: no shelf, and "name ·
+  threads · GB" in the header.
+- With two or more, the header is only the wordmark, weekday and clock. The
+  machine's threads and memory are not repeated: the CPU and memory cards
+  already say "of 32 cores" and "of 59 GB". Each machine's name appears once,
+  on its plaque.
+- The shelf is a full-width row of plaques under both columns, 96px tall,
+  16px apart. A plaque is a card with a 44px hexagon, the name in 30px bold
+  and one 24px sentence. Plaques share the width equally.
+- Plaque states, each with its own outline, hexagon and words:
+  - **On screen**: amber border, amber hexagon with the glow fill, bright
+    name, "On screen · 2 warnings" (or "· all well", "· not answering"), and
+    a 6px amber bar along the bottom that fills over the turn.
+  - **Well**: card border, plain hexagon, "All well · 5 containers".
+  - **Something wrong** (a coral warning): coral border, coral hexagon with
+    "!", coral name, and the machine's worst warning as the sentence, in its
+    short form ("backup-db is at 92% of its memory cap"). A machine that is
+    only busy (amber warnings) keeps the plain plaque with its sentence.
+  - **Not answering**: card border, dim dashed hexagon, dim name, "has not
+    answered for 4 min", or "has not answered yet" under its address if it
+    never has.
+- To make room, the hive is drawn at 0.975 scale, the machine's own warnings
+  are limited to two lines, and the deploys card no longer reaches into the
+  bottom margin, so it shows one row less.
+- When more warnings apply than there are lines, on this screen or on the
+  one-machine screen, coral ones are listed first, each color in cell order.
+  When all fit they stay in cell order.
+- The hive, its warnings, the count card and the host cards belong to the
+  machine on screen and cross-fade over 0.7s when it changes. The deploys
+  card is not tied to a machine and does not move.
+- Up to four machines each get a plaque, in their own order. With more, the
+  shelf shows the machine on screen, then up to two machines that need
+  attention, then one plaque "N more" with "All well", or in coral with "N
+  need attention".
+- Turns: 30s each; 60s for a machine with a coral warning. A machine that is
+  not answering is passed over, because it has nothing new to show, and stays
+  on the shelf.
+- Remote: the shelf is one focus stop, below the sort chips and the deploys
+  card. With focus, the plaque of the machine on screen takes the 3px
+  `#FFF8EA` ring, 3px outside it. Left and right change machine at once,
+  including to a machine that is not answering (its last reading), and pause
+  the turns: the bar turns dim and the sentence reads "On screen · paused".
+  The pause ends 2 minutes after the last key press.
 
-Not settled: how the machines are shown, how long a turn is, whether a machine
-in trouble gets a longer turn, and what happens beyond four machines.
+Only the first machine in the config is treated as the CI box with expected
+runners; the others never show a "missing" cell.
+
+Not built: keeping the machine change and the deploys carousel from moving
+in the same moment. Today the two timers run independently.
 
 ## Deploy rules
 

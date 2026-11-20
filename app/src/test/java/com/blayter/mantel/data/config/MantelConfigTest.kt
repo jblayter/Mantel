@@ -50,4 +50,17 @@ class MantelConfigTest {
         assertTrue("owner/name" in invalid("""{"glancesUrl":"http://box","githubToken":"abc","repos":["RxFlow"]}"""))
         assertTrue("list" in invalid("""{"glancesUrl":"http://box","githubToken":"abc","repos":"a/b"}"""))
     }
+
+    @Test
+    fun readsSeveralMachines() {
+        val config = ok("""{"glancesUrls":["http://192.168.1.50:61208/","http://192.168.1.61:61208","http://192.168.1.50:61208"]}""")
+        assertEquals(listOf("http://192.168.1.50:61208", "http://192.168.1.61:61208"), config.glancesUrls)
+        assertEquals("http://192.168.1.50:61208", config.glancesUrl)
+        assertEquals(listOf("http://box:61208"), ok("""{"glancesUrl":"http://box:61208"}""").glancesUrls)
+
+        assertTrue("both" in invalid("""{"glancesUrl":"http://a","glancesUrls":["http://b"]}"""))
+        assertTrue("glancesUrls" in invalid("""{"glancesUrls":[]}"""))
+        assertTrue("glancesUrls" in invalid("""{"glancesUrls":["http://a", 5]}"""))
+        assertTrue("http://" in invalid("""{"glancesUrls":["http://a","b:61208"]}"""))
+    }
 }

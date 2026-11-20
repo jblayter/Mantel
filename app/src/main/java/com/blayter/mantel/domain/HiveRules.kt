@@ -61,11 +61,25 @@ fun formatMemory(c: ContainerStatus): String = when {
 enum class Severity { Busy, Wrong }
 
 /** A plain-sentence warning: "[who] [what]". */
-data class Warning(val who: String, val what: String, val severity: Severity)
+data class Warning(
+    val who: String,
+    val what: String,
+    val severity: Severity,
+    /** A shorter [what] for tight places (a machine's plaque on the shelf). */
+    val brief: String = what,
+)
 
 const val MAX_WARNINGS = 3
 
-fun warningsFor(containers: List<ContainerStatus>, memoryNearCapPercent: Int): List<Warning> = buildList {
+fun warningsFor(containers: List<ContainerStatus>, memoryNearCapPercent: Int, max: Int = MAX_WARNINGS): List<Warning> {
+    val all = allWarningsFor(containers, memoryNearCapPercent)
+    if (all.size <= max) return all
+    // Not all fit: coral ones take the lines first, each color in cell order.
+    return all.sortedBy { if (it.severity == Severity.Wrong) 0 else 1 }.take(max)
+}
+
+/** Every warning, in cell order, with no limit. */
+fun allWarningsFor(containers: List<ContainerStatus>, memoryNearCapPercent: Int): List<Warning> = buildList {
     for (c in containers) {
         val presence = c.presence
         if (presence is Presence.Missing) {
@@ -77,7 +91,8 @@ fun warningsFor(containers: List<ContainerStatus>, memoryNearCapPercent: Int): L
         if (c.isMemoryNearCap(memoryNearCapPercent)) {
             val capGb = c.memoryCapMb!! / 1024.0
             val cap = if (capGb % 1.0 == 0.0) capGb.toInt().toString() else gb(c.memoryCapMb)
-            add(Warning(c.shortName, "is at ${c.memoryPercentOfCap!!.roundToInt()}% of its $cap GB memory cap", Severity.Wrong))
+            val percent = c.memoryPercentOfCap!!.roundToInt()
+            add(Warning(c.shortName, "is at $percent% of its $cap GB memory cap", Severity.Wrong, brief = "is at $percent% of its memory cap"))
         }
     }
-}.take(MAX_WARNINGS)
+}

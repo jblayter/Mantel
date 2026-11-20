@@ -130,6 +130,8 @@ fun DeploysCard(
     status: DeployStatus = DeployStatus.Live,
     repoNames: List<String> = emptyList(),
     board: DeployBoard = remember(deploys) { deployBoard(deploys) },
+    /** False when something sits under the card (the machine shelf), so it must not reach down. */
+    reachDown: Boolean = true,
 ) {
     val repos = if (status == DeployStatus.Live) board.pages.map { it.repo } else emptyList()
     var wanted by remember { mutableStateOf<String?>(null) }
@@ -152,7 +154,7 @@ fun DeploysCard(
     var focused by remember { mutableStateOf(false) }
     HiveCard(
         modifier
-            .growDown(BottomGrow)
+            .growDown(if (reachDown) BottomGrow else 0.dp)
             .fillMaxWidth()
             .onFocusChanged { focused = it.isFocused }
             .onKeyEvent { event ->
