@@ -10,7 +10,7 @@ import java.net.URI
 
 /** What the display needs to know to go live. Comes from a pushed `mantel-config.json`. */
 data class MantelConfig(
-    /** Root of the Glances web server, without `/api/4`: `http://192.168.6.35:61208`. */
+    /** Root of the Glances web server, without `/api/4`: `http://192.168.6.38:61208`. */
     val glancesUrl: String,
     /** Read-only GitHub token, or null when deploys are not set up. Never log or display it. */
     val githubToken: String? = null,
@@ -36,7 +36,7 @@ sealed interface ConfigParseResult {
  * Reads the text of `mantel-config.json`:
  *
  *     {
- *       "glancesUrl": "http://192.168.6.35:61208",
+ *       "glancesUrl": "http://192.168.6.38:61208",
  *       "githubToken": "github_pat_...",
  *       "repos": ["example-org/RxFlow"]
  *     }

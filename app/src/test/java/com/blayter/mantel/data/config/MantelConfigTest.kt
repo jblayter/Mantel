@@ -10,9 +10,9 @@ class MantelConfigTest {
 
     @Test
     fun readsTheGlancesAddress() {
-        val config = ok("""{ "glancesUrl": "http://192.168.6.35:61208" }""")
-        assertEquals("http://192.168.6.35:61208", config.glancesUrl)
-        assertEquals("192.168.6.35", config.glancesHost)
+        val config = ok("""{ "glancesUrl": "http://192.168.6.38:61208" }""")
+        assertEquals("http://192.168.6.38:61208", config.glancesUrl)
+        assertEquals("192.168.6.38", config.glancesHost)
     }
 
     @Test
@@ -26,7 +26,7 @@ class MantelConfigTest {
         assertTrue("JSON" in invalid("glancesUrl = http://box"))
         assertTrue("glancesUrl" in invalid("{}"))
         assertTrue("glancesUrl" in invalid("""{"glancesUrl": 5}"""))
-        assertTrue("http://" in invalid("""{"glancesUrl":"192.168.6.35:61208"}"""))
+        assertTrue("http://" in invalid("""{"glancesUrl":"192.168.6.38:61208"}"""))
         assertTrue("http://" in invalid("""{"glancesUrl":"ftp://box"}"""))
         assertTrue("host" in invalid("""{"glancesUrl":"http://:61208"}"""))
     }
