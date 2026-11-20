@@ -178,17 +178,13 @@ minutes; ended cells linger for about a minute.
 
 ## Setup, loading and failure states
 
-Mockups are in `mockups/`: `State-Setup`, `State-Loading`, `State-Unreachable`,
+Mockups are in `mockups/`: `State-Loading`, `State-Unreachable`,
 `Deploys-TokenExpired` and `Deploys-NoRuns`. All of them reuse the main
 screen's frame, header, cards and type. Nothing in them can be focused.
 
-- **Not set up yet** (no config): the title in Fraunces, one lead sentence, a
-  card with the commands to run, and an amber spinner line saying Mantel is
-  looking for the file. A corner of empty dashed cells on the right. If a
-  pushed file cannot be used, a coral warning line says why. The mockup shows
-  one `adb push` command; the built screen shows two, because Android 11 and
-  later refuse a push into the app's folder. This is an interim screen until
-  the QR setup is designed.
+- **Not set up yet** (no config): the on-TV setup below. The earlier interim
+  screen, which showed the adb commands, is gone; the commands are in the
+  README.
 - **Waiting for the first reading**: the main layout with twelve empty cells
   (ended-cell base and dashed outline), a dim "—" where each number will be,
   and the spinner with "Waiting for the first reading from [address]".
@@ -206,44 +202,172 @@ screen's frame, header, cards and type. Nothing in them can be focused.
 - **Deploys, no recent runs**: a dim circle-and-dash icon, "No recent runs",
   and one sentence naming the repositories and the 7-day window.
 
-## On-TV setup — designed, not built, not yet approved by the owner
+## On-TV setup
 
-Replaces the adb-pushed file for people who install from a store. Mockups:
-`Setup-Machines`, `Setup-NoMachines`, `Setup-Address`, `Setup-GitHub`,
-`Setup-Ready`. The pushed file stays as a developer route. Nothing long is
-ever typed with the remote, and no token is typed at all.
+Replaces the adb-pushed file for people who install from a store. The pushed
+file stays as a developer route. Nothing long is ever typed with the remote,
+and no token is typed at all. Nothing in setup can change a machine or GitHub.
 
-All five screens use the main frame: the header with "Setup · step 1 of 2 ·
-machines" where the host summary goes, the 980px left column for the question
-and its controls, and the right column for one supporting picture.
+### Step 1, machines — approved by the owner and built
 
-1. **Machines.** Mantel asks every address on the TV's own network for Glances
-   on port 61208 and lists what answers: the name from `/system`, then
-   address, threads, memory and container count. Each row is a checkbox with
-   the word "Watching" or "Not watching"; more than one can be picked. The
-   right column is a comb of four cells, one lit per machine picked. A spinner
-   line counts addresses checked while the search runs.
-2. **No machines.** Says what Glances is in one sentence and sends the person
-   to their phone (QR and a short address) for the one command that starts it.
-   A long command is never shown on the TV to be retyped.
-3. **Enter an address.** A number pad (digits, dot, Delete) for a machine the
-   search cannot reach. The port is shown dim and changed on request.
-4. **Deploys (optional).** GitHub's device sign-in: a QR and
-   `github.com/login/device`, with the code in display-xl. "Skip for now" has
-   the first focus, so setup finishes without GitHub.
-5. **Ready.** Lists the machines and repositories, then "Start".
+Mockups: `Setup-1-Machines`, `Setup-2-NoMachines`, `Setup-3-Address`,
+`Setup-3b-NoAnswer`.
 
-Rules:
+All screens share one frame so nothing jumps between them: the header says
+"Setup · machines" where the host summary goes; the title sits at the same
+height on every screen; the buttons sit on the bottom edge of the 980px left
+column; the right column holds one supporting thing.
 
-- Buttons are cards with the label in 24px bold. The main action is an amber
-  fill with dark text. Focus is the usual 3px `#FFF8EA` border.
-- A QR code sits on a `Text secondary` tile with ground-colored squares. It is
-  the one large bright area allowed, because these screens are never left on.
-- Repositories are not picked on the TV. They are whatever the person let the
-  Mantel GitHub App read; the Ready screen says where to change that.
-- Still to design: "nothing answered at this address", the password prompt for
-  a protected Glances, "signed in but the app can read no repositories", the
-  expired code, and the settings screen that reopens all of this later.
+- Buttons are cards with a 24px bold label. The main action is amber fill
+  with dark text. Focus is the 3px `#FFF8EA` ring, 3px outside the control.
+- Trouble is a coral triangle line with a sentence, as on the dashboard.
+- **The search.** Mantel asks all 254 addresses that share the TV's first
+  three numbers whether Glances answers on port 61208. It opens a connection
+  and sends GET requests, nothing else. A spinner line counts: "Still
+  looking. 148 of 254 addresses checked."
+- **Machines.** The comb is the picker: a row of four places and a row of
+  three. Each machine that answers becomes a cell: the state word ("WATCHING"
+  with a tick, or "NOT WATCHING"), its container count as the number, its
+  name, "containers". Watching: amber 6px outline and glow. Not watching:
+  plain outline, dim text. Places not yet filled are dashed empty cells. OK on
+  a cell watches it or stops. Machines are in address order; more than seven
+  are not shown, and the sentence under the title says so.
+- The right column is a card for the cell in focus: name, address, threads,
+  memory, containers, and what OK will do. The facts are shown once, for one
+  machine at a time. When the focus is on a button the card keeps the last
+  cell and says "The last cell in focus".
+- A cell in focus takes the ring in the gap around it, 3px outside its
+  outline. (The board draws the ring inside and shrinks the cell; built, that
+  pushed "NOT WATCHING" into the outline.)
+- First focus: the first cell. If exactly one machine answered it is already
+  watched and the focus starts on "Watch 1 machine". With nothing picked the
+  main button is a dim "No machine picked yet" and is not a focus stop.
+- **No machines.** One sentence on what Glances is, a three-step card, and a
+  spinner line: the search repeats every 10 seconds by itself. First focus:
+  "Look again now". The right column is the QR code of the official Glances
+  documentation, `nicolargo.github.io/glances`, with the address under it
+  and in step 1 (the owner's choice, 2026-11-20; the board's
+  `mantel.example/start` was a placeholder). Step 2 shows `glances -w`.
+- **Enter an address.** The first three numbers are filled in from the TV's
+  own address and shown dim; the person types only the last one on a number
+  pad (digits, dot, Delete). "Change first part" opens the whole address for
+  another network. "Change port" moves the pad to the port, shown as a quiet
+  24px label inside the field. A key that would make an impossible address is
+  ignored. First focus: the "5" key. (The board's "Change the first part" and
+  "Change the port" did not fit on one row with the other two buttons.)
+- **Nothing answered.** The same screen: the field takes a coral border, and
+  under it a coral line "192.168.1.57 did not answer on port 61208." with one
+  sentence on what to check. No command is shown. The main button reads
+  "Check again".
+- A machine that answers at an address is added to the comb, watched.
+- One cell per address that answers. A machine on both a wired and a
+  wireless address shows as two cells with the same name; they are not
+  merged, and the card for the cell in focus tells them apart by address.
+- A Glances that asks for a password is not listed by the search. Entered by
+  address, it gets a coral line saying Mantel cannot give a password yet.
+- Under the card for the cell in focus, a second card, "Not seeing a
+  machine?", says what a machine needs: install Glances, start it with
+  `glances -w`, then "Look again", with a 220px QR code of the Glances
+  documentation beside the steps. It is always there. Both cards fill the
+  right column (the board's detail card is 560px wide). Added at the owner's
+  request, 2026-11-20; it is not on the board.
+- "Watch N machines" goes on to step 2. Nothing is stored until "Start".
+
+### Step 2, deploys, and Ready — approved by the owner and built
+
+Mockups: `Setup-4-GitHub`, `Setup-4b-CodeExpired`, `Setup-4c-NoRepos`,
+`Setup-5-Ready`. The header says "Setup · step 2 of 2 · deploys", then
+"Setup · ready".
+
+Sign-in is GitHub's device flow against the GitHub App
+`github.com/apps/mantel-ci-cd-display`, which asks for read access to Actions
+and Metadata and nothing else. The app holds the app's client ID, which is
+public, and no client secret. Asking for a code, exchanging it and refreshing
+the token are POSTs to github.com: the only requests Mantel makes that are
+not GETs. They change nothing in a repository or workflow.
+
+- **Deploys.** "Show your deploys too?" Two numbered steps, the code in
+  display-xl, a spinner line with the minutes left, and the QR code of
+  `github.com/login/device` with the address under it. First focus: "Skip, no
+  deploys for now". "Back" returns to the machines with the picks kept.
+- **Code ran out.** The old code stays, dim and struck through; the QR tile
+  becomes a dashed empty tile. A coral line says why: it ran out, or the
+  request was cancelled on GitHub. First focus: "Get a new code".
+- **No repositories.** Signed in, but the app is installed nowhere or has no
+  repository chosen. Three steps and the QR code of the app's page. It asks
+  GitHub again every 5 seconds and moves on by itself. "Continue without
+  deploys" keeps the sign-in; "Sign out" makes this display forget it.
+- **Ready.** Machines on the left, deploys on the right, a green tick per
+  line, at most ten lines a card and then "and N more". First focus: "Start".
+  Nothing starts on a timer. "Start" stores the machines and the sign-in.
+- The QR tile is 374px with a 22px quiet margin: `Text secondary` ground with
+  ground-colored squares. It is the one large light area allowed, on these
+  screens only.
+
+After sign-in:
+
+- The repositories are the ones the owner chose for the app on GitHub, read
+  again every 10 minutes. With more than 12, the 12 most recently pushed are
+  watched.
+- GitHub's token lasts 8 hours. It is swapped for a new one 10 minutes before
+  it runs out, and both tokens are stored encrypted. If the TV cannot
+  encrypt, the sign-in lasts until the app next starts.
+- Signed in with no repository chosen, the deploys card says "No recent runs".
+  Skipped, it shows the sample and the header says "sample deploys".
+
+Differences from the boards, and states with no board:
+
+- No step pips in the header, as in step 1.
+- "Asking GitHub for a code", "GitHub did not give a code" (first focus "Try
+  again") and "Approved. Reading what Mantel may show." were built without a
+  board, in the same frame.
+- The request being cancelled on GitHub reuses the "Code ran out" screen with
+  its own sentence.
+- Ready has cards for "No deploys for now" and "no repositories yet", which
+  the board does not show.
+- The "No repositories" step 2 says "Install" or "Configure"; the board says
+  only "Configure", which is not there before the first install.
+
+### Settings — approved by the owner and built
+
+Mockup: `Settings`. Opened from the live dashboard with the Menu button, or
+by holding OK for 0.7 s on a remote with no Menu button. Nothing is drawn on
+the dashboard for it. The display keeps polling behind it. The mock build has
+no settings.
+
+- The setup frame, header "Settings". Machines card on the left, deploys card
+  on the right, the same split as the dashboard. First focus: "Back to the
+  display"; the remote's Back does the same.
+- **Machines.** One row per machine: tick, name, address, and "answering" or
+  the coral "has not answered for 4 min". With two or more machines a row is
+  a focus stop and OK removes it; the last machine cannot be removed.
+- **Add a machine** runs the network search again: setup's machines screens
+  with the header "Settings · machines", the machines already watched ticked,
+  and a "Back" button. Machines already watched keep their order, new ones
+  go after them, and one the search did not find stays watched.
+- **Deploys, signed in.** "Deploys · signed in as NAME", the repositories with
+  ticks (ten lines, then "and N more"), "Repositories are chosen on GitHub,
+  not here.", then "Choose repositories" and "Sign out of GitHub".
+- **Choose repositories** shows the QR code of the app's page on GitHub with
+  the same three steps as setup, and how many repositories Mantel reads now.
+  While it is open the list is read from GitHub every 5 seconds.
+- **Deploys, not signed in.** A sentence on where the runs come from (the
+  sample, a pushed config file, or a token that was not stored) and "Sign in
+  to GitHub", which runs setup's sign-in screens without "Skip".
+- **Asking once.** "Remove", "Sign out of GitHub" and "Start over" change
+  their words on the first OK ("OK again to remove") and act on the second;
+  moving the focus away takes the question back. They change only what this
+  display stores. "Sign out" does not end the authorization on GitHub.
+- A change to machines or sign-in restarts the display's readings, so the
+  charts start again.
+
+Differences from the board: the "Choose repositories" button and its QR
+screen, "Sign in to GitHub" and the not-signed-in cards were added at the
+owner's request; the board shows only the signed-in card.
+
+### Still proposed, not built
+
+The password prompt is in `docs/design/proposals` with its rules.
 
 ## Several machines — the shelf
 
@@ -335,8 +459,7 @@ description and have no mockup yet.
 
 ## Not designed yet
 
-Run detail, the QR first-run setup (TV QR screen and phone form), settings,
-and what the deploys card shows when GitHub fails for a reason other than the
+Run detail, and what the deploys card shows when GitHub fails for a reason other than the
 token. They should follow this language. A table-style container screen exists
 on the canvas ("Containers") as a possible drill-in, still in the earlier cold
 palette.

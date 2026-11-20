@@ -1,13 +1,22 @@
 # Proposed rules: on-TV setup and settings
 
-Status: proposed, not approved, not built. The artboards are in this folder
-(`Setup-*.dc.html`, `Settings.dc.html`) and on the design canvas under "On-TV
-setup and settings". None of them has been checked rendered. Written in the
-style of `DESIGN.md` so the approved parts can be moved there.
+Status: step 1 (machines, no machines, enter an address, nothing answered)
+was approved by the owner on 2026-11-20 and is built. Its boards moved to
+`docs/design/mockups` and its rules, as built, are in `DESIGN.md` under
+"On-TV setup"; the sections below are kept as proposed, for the record.
 
-These replace the earlier drafts in `docs/design/mockups` (`Setup-Machines`,
-`Setup-NoMachines`, `Setup-Address`, `Setup-GitHub`, `Setup-Ready`) only once
-approved; until then the drafts stay.
+Step 2 (deploys, code ran out, no repositories) and Ready were approved by
+the owner on 2026-11-20 and are built; their boards moved to
+`docs/design/mockups` too, the earlier drafts `Setup-GitHub` and
+`Setup-Ready` were removed, and the rules as built are in `DESIGN.md`.
+
+Settings was approved by the owner on 2026-11-20 and is built, opened with
+the Menu button or by holding OK; its board moved to `docs/design/mockups`
+and its rules as built are in `DESIGN.md`.
+
+What is left here is proposed, not approved, not built: the password prompt.
+Its artboard is in this folder and on the design canvas under "On-TV setup
+and settings". It has not been checked rendered.
 
 The several-machines shelf from the same brief was approved and built; its
 rules are in `DESIGN.md` under "Several machines — the shelf".
@@ -27,8 +36,8 @@ Everything else uses existing tokens. No new colors.
 
 - Password entry: the proposal has the TV serve a small page on the home
   network during setup, so the password is typed on a phone.
-- `mantel.example/start` and `github.com/apps/mantel` are placeholders; real
-  addresses are needed.
+- `mantel.example/start` is a placeholder; a real address is needed. The
+  GitHub App's page is decided: `github.com/apps/mantel-ci-cd-display`.
 - How settings is opened from the dashboard. Proposed: the Menu button, or
   holding OK.
 

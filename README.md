@@ -1,18 +1,81 @@
 # Mantel
 
-An Android TV wall display for your home lab: live machine stats from Glances and GitHub Actions deploy status on one screen.
+An always-on Android TV wall display for a home CI box. From across the room it answers two questions: is the machine struggling, and did my last deploy go out?
 
-## Status
+Mantel is open source (Apache 2.0) and read-only. It cannot start, stop or change a container, a machine or a workflow.
 
-The main dashboard is built in Jetpack Compose for TV. Machine stats and containers are live from Glances, and the deploys card is live from GitHub Actions once the config has a token. Without one it shows sample data and the header says "sample deploys".
+## What it shows
 
-Mantel is read-only. It only ever sends GET requests.
+- **The hive.** One hexagon per container on the machine, from [Glances](https://nicolargo.github.io/glances/). The glow in a cell is how many cores it is using, and the line under the name is its memory. Runners, job databases and job containers have their own outline color and word. A container that ended lingers for a minute, and a runner that should be there and is not shows as "missing".
+- **Warnings.** Up to three plain sentences under the hive, such as a container near its memory cap or a missing runner.
+- **The machine.** How many containers are running and of which kind over the last 30 minutes, then CPU, memory and load, each with a small trend.
+- **Deploys.** GitHub Actions runs from the repositories you choose. Runs that are going show a timer and a progress bar; finished ones show passed or failed, and which job failed. While anything ran in the last hour the card shows only that; otherwise it shows each repository's latest runs, one repository at a time.
+- **Several machines.** With more than one machine the display shows one at a time and takes turns. A shelf along the bottom has a plaque for each, which says if another machine has a problem or has stopped answering.
 
-The design language ("Hive") is in [`docs/design/DESIGN.md`](docs/design/DESIGN.md), with its values in [`docs/design/tokens.json`](docs/design/tokens.json).
+If the machine stops answering, the screen dims to its last reading and says for how long.
+
+## What you need
+
+- An Android TV or Fire TV, 1080p, Android 8 or later.
+- [Glances](https://nicolargo.github.io/glances/) running in web server mode on each machine you want to watch, on the same network as the TV, with no password.
+- For deploys, a GitHub account. This part is optional.
+
+Mantel is not in an app store yet. For now you build it and install it with adb; see [Build](#build).
 
 ## Set up a display
 
-A freshly installed Mantel shows a "not set up yet" screen until you give it a config file. Nothing about your network is in the APK.
+A freshly installed Mantel sets itself up on the TV with the remote. Nothing about your network or your GitHub account is in the APK.
+
+### 1. Start Glances on each machine
+
+Install Glances by following [its documentation](https://nicolargo.github.io/glances/), then start it with its web page on:
+
+```bash
+glances -w
+```
+
+It listens on port 61208. Container stats need Glances to be able to see Docker or Podman on that machine.
+
+### 2. Choose machines on the TV
+
+Open Mantel. It asks the 254 addresses that share the TV's first three numbers whether Glances answers on port 61208, and shows each machine that does as a cell. The search only opens a connection and reads.
+
+- Press OK on the cells you want, then "Watch N machines".
+- If a machine is on another network or port, choose "Enter an address" and type it on the number pad.
+- If nothing answers, the screen says how to start Glances, shows a QR code to its documentation and keeps looking every 10 seconds.
+- A machine that answers on two addresses, for example wired and wireless, shows as two cells. Pick one.
+
+### 3. Sign in to GitHub (optional)
+
+The TV shows a short code and a QR code.
+
+1. Scan the QR code with a phone, or open `github.com/login/device` on any computer.
+2. Type the code from the TV and approve.
+3. Choose which repositories Mantel may read at [github.com/apps/mantel-ci-cd-display](https://github.com/apps/mantel-ci-cd-display): install the app on your account or organization and pick the repositories. The TV waits on a "no repositories yet" screen until you do, and moves on by itself.
+
+Signing in gives Mantel read access to Actions and Metadata for the repositories you choose, and nothing else. No password or token is typed on the TV. The sign-in is stored encrypted on the TV and renewed by itself.
+
+"Skip" leaves the deploys card on sample runs, and the header says "sample deploys".
+
+### 4. Start
+
+The last screen lists the machines and repositories. Press "Start".
+
+## Settings
+
+On the live display, press the Menu button on the remote, or hold OK for about a second.
+
+- **Machines:** see each machine and whether it is answering. Remove one, or choose "Add a machine" to search the network again.
+- **Deploys:** see who is signed in and which repositories are read. "Choose repositories" brings back the QR code to the app's page on GitHub; repositories are chosen there, not on the TV. You can also sign in or sign out.
+- **Start over:** forgets everything this display stores and shows setup again.
+
+"Remove", "Sign out" and "Start over" ask once: press OK a second time to confirm. Signing out makes the TV forget the sign-in; to end the authorization itself, revoke it in your GitHub settings.
+
+Changing repositories on GitHub reaches the display within 10 minutes. With more than 12 repositories, Mantel watches the 12 most recently pushed.
+
+## Set up with a config file instead
+
+For development, or to use a personal access token rather than the sign-in. A pushed file replaces everything the display has stored, including a sign-in made on the TV.
 
 1. Write `mantel-config.json`. Keep it out of version control: it holds a token.
 
@@ -24,8 +87,8 @@ A freshly installed Mantel shows a "not set up yet" screen until you give it a c
    }
    ```
 
-   - `glancesUrl` is the machine running Glances in web server mode (`glances -w`). Use an IP address: most TVs cannot resolve `.local` names.
-   - To watch several machines, replace `glancesUrl` with a list: `"glancesUrls": ["http://192.168.1.50:61208", "http://192.168.1.61:61208"]`. The display shows one at a time and takes turns, with every machine on a shelf along the bottom.
+   - `glancesUrl` is the machine running `glances -w`. Use an IP address: most TVs cannot resolve `.local` names.
+   - To watch several machines, replace `glancesUrl` with a list: `"glancesUrls": ["http://192.168.1.50:61208", "http://192.168.1.61:61208"]`.
    - `githubToken` and `repos` are optional and go together. Use a fine-grained personal access token limited to those repositories, with read-only access to Actions and Metadata and nothing else.
 
 2. Push it to the TV. adb cannot write straight into an app's storage on Android 11 and later, so this takes two commands:
@@ -38,15 +101,31 @@ A freshly installed Mantel shows a "not set up yet" screen until you give it a c
    adb shell run-as com.blayter.mantel cp /data/local/tmp/mantel-config.json files/
    ```
 
-Mantel looks for the file every few seconds, stores its contents encrypted, deletes the file and starts. A new file pushed later replaces everything stored, so it must be complete. If the file cannot be used, the setup screen says why. If the TV cannot encrypt, the token is not stored at all and the deploys card says so.
+3. Delete the copy afterwards:
 
-Delete the copy in `/data/local/tmp` afterwards:
+   ```bash
+   adb shell rm /data/local/tmp/mantel-config.json
+   ```
 
-```bash
-adb shell rm /data/local/tmp/mantel-config.json
-```
+Mantel looks for the file every few seconds, stores its contents encrypted, deletes the file and starts. If the file cannot be used, the setup screen says why; once machines are being watched, a rejected file is not reported on screen. If the TV cannot encrypt, the token is not stored at all and the deploys card says so.
 
 `run-as` needs a debug build. On a release build, copy the file to `/sdcard/Android/data/com.blayter.mantel/files/` with a file manager instead.
+
+## What Mantel sends over the network
+
+- **To your machines:** GET requests to Glances (`/api/4/containers`, `/quicklook`, `/mem`, `/load`, `/system`) every few seconds, and during setup one connection attempt to port 61208 on each address of the TV's own network.
+- **To GitHub:** GET requests for workflow runs, the jobs of a failed run, who is signed in and which repositories the app may read. Signing in and renewing the sign-in are the only POST requests; they change nothing in any repository or workflow.
+
+Nothing is sent anywhere else. There is no analytics and no account with Mantel.
+
+## Known limits
+
+- A Glances that asks for a password cannot be watched yet.
+- The rules for what counts as a runner, which runners are expected and how names are shortened still describe the author's own CI box. They need a general form before a store release.
+- Only the first machine has expected runners, so only it can show "missing" cells.
+- The warning thresholds (memory near its cap at 85%, sustained CPU, host CPU at 90%) are provisional.
+- There is no drill-in screen for a single run or container.
+- Glances keeps no history, so the trends start empty each time the app starts or its settings change.
 
 ## Build
 
@@ -64,21 +143,36 @@ You need JDK 17 and the Android SDK (platform 35, build-tools 35.0.0).
    ./gradlew -Dorg.gradle.java.home=/path/to/jdk17 :app:assembleDebug
    ```
 
-3. Build, test and install with the wrapper:
+3. Run the unit tests:
 
    ```bash
    ./gradlew :app:testDebugUnitTest
+   ```
+
+4. Install on the TV or emulator that adb is connected to:
+
+   ```bash
    ./gradlew :app:installDebug
    ```
 
-To work on the screen without a Glances machine, build the all-mock app:
+Always use the wrapper (`./gradlew`); a newer system Gradle may run on a JDK this Android plugin does not support.
+
+To work on the screen without a Glances machine, build the all-mock app, which opens on the design's sample screen:
 
 ```bash
 ./gradlew :app:installDebug -Pmantel.mock=true
 ```
 
-The app targets a 1920x1080 Android TV (minSdk 26). To try it without a TV, create an Android TV emulator with the `tv_1080p` device profile and install onto it.
+Add `-Pmantel.mockMachines=3` for sample machines and the shelf.
 
-## Fonts
+To try it without a TV, create an Android TV emulator with the `tv_1080p` device profile and install onto it.
 
-Fraunces and DM Sans are bundled under the SIL Open Font License; the license texts are in [`licenses/`](licenses/).
+If you fork Mantel and want your own GitHub App for the sign-in, register one with "Enable Device Flow" ticked and read-only access to Actions and Metadata, then put its client ID and page in `app/src/main/java/com/blayter/mantel/data/github/GitHubAuth.kt`. The client ID is public; there is no client secret.
+
+## Design
+
+The design language is called Hive: a warm walnut palette, honeycomb container cells, craftsman-style cards, and the Fraunces and DM Sans typefaces. It is written up in [`docs/design/DESIGN.md`](docs/design/DESIGN.md), with its values in [`docs/design/tokens.json`](docs/design/tokens.json) and the approved screens in [`docs/design/mockups`](docs/design/mockups).
+
+## Licenses
+
+Mantel is under the [Apache License 2.0](LICENSE). Fraunces and DM Sans are bundled under the SIL Open Font License; the license texts are in [`licenses/`](licenses/). QR codes are drawn with ZXing (Apache License 2.0).
