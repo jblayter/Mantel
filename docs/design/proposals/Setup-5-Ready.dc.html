@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mantel · Setup · ready</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=DM+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#2B1E15}
+.disp{font-family:'Fraunces',Georgia,serif;font-variant-numeric:tabular-nums}
+.hex{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card{background:#3A2A1E;border:3px solid #5C4431;border-radius:8px}
+.btn{font-size:24px;font-weight:700;color:#EADFCB;background:#3A2A1E;border:3px solid #5C4431;border-radius:8px;padding:12px 26px;white-space:nowrap}
+.btn.main{background:#F0B45A;border-color:#F0B45A;color:#1A140C}
+.focus{outline:3px solid #FFF8EA;outline-offset:3px}
+
+</style>
+</helmet>
+<div style="width:1920px;height:1080px;box-sizing:border-box;padding:54px 96px;background:#2B1E15;color:#F2E9DA;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden">
+<div style="height:100%;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;justify-content:space-between;height:64px;flex-shrink:0">
+<div style="display:flex;align-items:baseline;gap:22px">
+<div class="disp" style="font-size:48px;font-weight:700;color:#F0B45A">Mantel</div>
+<div style="font-size:26px;color:#D2C0A6">Setup · ready</div>
+</div>
+<div class="disp" style="font-size:52px;font-weight:500">2:32</div>
+</div>
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:980px minmax(0,1fr);gap:32px">
+<section style="display:flex;flex-direction:column;min-height:0;padding-top:28px">
+<div class="disp" style="font-size:52px;font-weight:700;line-height:1.1;color:#FFF8EA">Ready to start</div>
+<div style="font-size:26px;line-height:1.4;color:#EADFCB;margin-top:16px">Mantel takes turns between the two machines. Deploys stay on screen the whole time.</div>
+<div style="margin-top:28px;display:flex;flex-direction:column;gap:20px"><div class="card" style="padding:20px 26px;display:flex;flex-direction:column;gap:10px;"><div style="font-size:24px;font-weight:700;color:#D2C0A6">Watching 2 machines</div><div style="display:flex;align-items:center;gap:14px;font-size:24px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><b>ci-runner01</b> <span style="color:#D2C0A6">· 192.168.1.50</span></span></div><div style="display:flex;align-items:center;gap:14px;font-size:24px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><b>attic-nas</b> <span style="color:#D2C0A6">· 192.168.1.61</span></span></div></div></div>
+<div style="flex:1"></div>
+
+<div style="display:flex;gap:16px;align-items:center;padding:6px"><div class="btn main focus">Start</div><div class="btn">Back</div></div>
+</section>
+<section style="display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-width:0;gap:18px;padding-top:202px"><div style="width:100%;align-self:stretch;display:flex;flex-direction:column;gap:20px;"><div class="card" style="padding:20px 26px;display:flex;flex-direction:column;gap:10px;"><div style="font-size:24px;font-weight:700;color:#D2C0A6">Deploys from 3 repositories · signed in as octocat</div><div style="display:flex;align-items:center;gap:14px;font-size:24px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><b>octocat/storefront</b></span></div><div style="display:flex;align-items:center;gap:14px;font-size:24px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><b>octocat/api</b></span></div><div style="display:flex;align-items:center;gap:14px;font-size:24px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#AFC487" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><b>octocat/infra</b></span></div></div><div style="font-size:24px;line-height:1.35;color:#D2C0A6">To add or remove repositories, change what Mantel can read in your GitHub settings.</div></div></section>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
