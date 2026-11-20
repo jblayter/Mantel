@@ -171,6 +171,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     // Encrypted storage for the pushed config. Same version as the KrakenTV board.
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    // Draws the QR codes of on-TV setup. The encoder only; nothing is scanned.
+    implementation("com.google.zxing:core:3.5.3")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-tooling-preview")

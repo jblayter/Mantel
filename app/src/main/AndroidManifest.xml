@@ -22,7 +22,7 @@
         android:theme="@style/Theme.Mantel"
         android:usesCleartextTraffic="true">
         <!-- Cleartext is allowed because Glances serves plain HTTP on the LAN, at
-             an address that is only known from the pushed config file. -->
+             an address that is only known from setup on the TV or a pushed config file. -->
 
         <activity
             android:name=".MainActivity"

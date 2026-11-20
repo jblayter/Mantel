@@ -18,21 +18,25 @@ import java.time.Instant
  * [recentRuns] is called every second so the running timer ticks; the network
  * is only asked once per [pollEvery], for both successes and failures.
  *
- * @param repos `owner/name` each.
+ * @param token a token that works now; asked before each fetch, so a signed-in display can refresh it.
+ * @param repos `owner/name` each; asked before each fetch, so the list can change on GitHub.
  * @param get fetches one URL as text with the given headers.
  */
 class GitHubDeploySource(
-    private val token: String,
-    private val repos: List<String>,
+    private val token: suspend () -> String,
+    private val repos: () -> List<String>,
     private val now: () -> Instant = Instant::now,
     private val pollEvery: Duration = Duration.ofSeconds(45),
     private val get: suspend (url: String, headers: Map<String, String>) -> String = ::httpGet,
 ) : DeploySource {
-    private val headers = mapOf(
-        "Authorization" to "Bearer $token",
-        "Accept" to "application/vnd.github+json",
-        "X-GitHub-Api-Version" to "2022-11-28",
-    )
+    /** A token and a list that never change: the pushed config file. */
+    constructor(
+        token: String,
+        repos: List<String>,
+        now: () -> Instant = Instant::now,
+        pollEvery: Duration = Duration.ofSeconds(45),
+        get: suspend (url: String, headers: Map<String, String>) -> String = ::httpGet,
+    ) : this({ token }, { repos }, now, pollEvery, get)
 
     private var history: List<WorkflowRun>? = null
     private var lastAttemptAt: Instant? = null
@@ -64,7 +68,12 @@ class GitHubDeploySource(
     }
 
     private suspend fun fetch(t: Instant) {
-        val all = repos.flatMap { repo ->
+        val headers = mapOf(
+            "Authorization" to "Bearer ${token()}",
+            "Accept" to "application/vnd.github+json",
+            "X-GitHub-Api-Version" to "2022-11-28",
+        )
+        val all = repos().flatMap { repo ->
             GitHubRuns.parseRuns(repo, get("$API/repos/$repo/actions/runs?per_page=$PAGE_SIZE", headers))
         }
         for (run in GitHubRuns.shown(all, t)) {
