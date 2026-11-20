@@ -125,6 +125,9 @@ android {
         // `./gradlew :app:installDebug -Pmantel.mock=true` builds the all-mock app,
         // for working on the screen without access to the CI box.
         buildConfigField("boolean", "MOCK_DATA", (providers.gradleProperty("mantel.mock").orNull == "true").toString())
+        // With the mock build, `-Pmantel.mockMachines=3` adds sample machines beside the main one
+        // (one with a warning, one that stops answering), to work on the several-machines screen.
+        buildConfigField("int", "MOCK_MACHINES", (providers.gradleProperty("mantel.mockMachines").orNull?.toIntOrNull() ?: 1).toString())
     }
 
     buildTypes {

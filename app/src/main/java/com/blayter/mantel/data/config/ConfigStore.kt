@@ -41,7 +41,8 @@ class ConfigStore(context: Context) {
         val url = prefs.getString(KEY_GLANCES_URL, null) ?: return null
         val repos = prefs.getString(KEY_REPOS, null).orEmpty().split('\n').filter { it.isNotEmpty() }
         val token = if (usesEncryption) prefs.getString(KEY_GITHUB_TOKEN, null) else null
-        return StoredConfig(MantelConfig(url, token, repos), prefs.getBoolean(KEY_TOKEN_NOT_STORED, false))
+        val more = prefs.getString(KEY_MORE_GLANCES_URLS, null).orEmpty().split('\n').filter { it.isNotEmpty() }
+        return StoredConfig(MantelConfig(url, token, repos, more), prefs.getBoolean(KEY_TOKEN_NOT_STORED, false))
     }
 
     /** Replaces everything stored. Returns what [load] will now give back. */
@@ -49,6 +50,7 @@ class ConfigStore(context: Context) {
         val dropToken = config.githubToken != null && !usesEncryption
         val editor = prefs.edit()
             .putString(KEY_GLANCES_URL, config.glancesUrl)
+            .putString(KEY_MORE_GLANCES_URLS, config.moreGlancesUrls.joinToString("\n"))
             .putString(KEY_REPOS, config.repos.joinToString("\n"))
             .putBoolean(KEY_TOKEN_NOT_STORED, dropToken)
         if (config.githubToken != null && usesEncryption) {
@@ -62,6 +64,7 @@ class ConfigStore(context: Context) {
 
     private companion object {
         const val KEY_GLANCES_URL = "glances_url"
+        const val KEY_MORE_GLANCES_URLS = "more_glances_urls"
         const val KEY_GITHUB_TOKEN = "github_token"
         const val KEY_REPOS = "repos"
         const val KEY_TOKEN_NOT_STORED = "token_not_stored"

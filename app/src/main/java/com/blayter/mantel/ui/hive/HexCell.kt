@@ -68,7 +68,7 @@ private fun ContainerKind.word() = when (this) {
 }
 
 /** Pointy-top hexagon inside [size], pulled in by [inset] on every side. */
-private fun hexPath(size: Size, inset: Float): Path = Path().apply {
+internal fun hexPath(size: Size, inset: Float): Path = Path().apply {
     val w = size.width
     val h = size.height
     moveTo(w / 2, inset)

@@ -25,6 +25,7 @@ A freshly installed Mantel shows a "not set up yet" screen until you give it a c
    ```
 
    - `glancesUrl` is the machine running Glances in web server mode (`glances -w`). Use an IP address: most TVs cannot resolve `.local` names.
+   - To watch several machines, replace `glancesUrl` with a list: `"glancesUrls": ["http://192.168.1.50:61208", "http://192.168.1.61:61208"]`. The display shows one at a time and takes turns, with every machine on a shelf along the bottom.
    - `githubToken` and `repos` are optional and go together. Use a fine-grained personal access token limited to those repositories, with read-only access to Actions and Metadata and nothing else.
 
 2. Push it to the TV. adb cannot write straight into an app's storage on Android 11 and later, so this takes two commands:

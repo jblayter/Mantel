@@ -24,7 +24,13 @@ val HiveHeight: Dp = HiveTokens.Hex.height + (HiveTokens.Hex.height + HiveTokens
  * grid never scrolls.
  */
 @Composable
-fun HiveGrid(containers: List<ContainerStatus>, modifier: Modifier = Modifier, stale: Boolean = false) {
+fun HiveGrid(
+    containers: List<ContainerStatus>,
+    modifier: Modifier = Modifier,
+    stale: Boolean = false,
+    /** Draws the whole hive smaller, to make room below it. */
+    scale: Float = 1f,
+) {
     val hex = HiveTokens.Hex
     val geometry = hiveGeometry(
         count = containers.size,
@@ -37,9 +43,9 @@ fun HiveGrid(containers: List<ContainerStatus>, modifier: Modifier = Modifier, s
         availWidth = HiveTokens.Screen.hiveColumnWidth.value,
         availHeight = HiveHeight.value,
     )
-    Box(modifier.size(HiveTokens.Screen.hiveColumnWidth, HiveHeight)) {
+    Box(modifier.size(HiveTokens.Screen.hiveColumnWidth, HiveHeight * scale)) {
         val outer = LocalDensity.current
-        CompositionLocalProvider(LocalDensity provides Density(outer.density * geometry.scale, outer.fontScale)) {
+        CompositionLocalProvider(LocalDensity provides Density(outer.density * geometry.scale * scale, outer.fontScale)) {
             Layout(content = { containers.forEach { key(it.name) { HexCell(it, stale = stale) } } }) { measurables, constraints ->
                 val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
                 val stepX = (hex.width + hex.gap).roundToPx()

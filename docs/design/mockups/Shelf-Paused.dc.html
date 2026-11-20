@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mantel · Shelf · focused and paused</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=DM+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#2B1E15}
+a{color:#93BBD0}a:hover{color:#9ACDE6}
+@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(6px,4px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes slide{to{background-position:40px 0}}
+.drift{animation:drift 900s ease-in-out infinite alternate}
+.pulse{animation:pulse 2.6s ease-in-out infinite}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.disp{font-family:'Fraunces',Georgia,serif;font-variant-numeric:tabular-nums}
+.hex{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.chip{font:inherit;font-size:24px;font-weight:700;border-radius:22px;padding:4px 18px;border:3px solid transparent;cursor:pointer}
+.focus{outline:3px solid #FFF8EA;outline-offset:3px}
+.chip:focus-visible{outline:none;border-color:#FFF8EA}
+.running{background-image:repeating-linear-gradient(120deg,#F0B45A 0 10px,#C98F3C 10px 20px);background-size:40px 100%;animation:slide 1.6s linear infinite}
+</style>
+</helmet>
+<div style="width:1920px;height:1080px;box-sizing:border-box;padding:54px 96px;background:#2B1E15;color:#F2E9DA;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden">
+<div class="drift" style="height:100%;display:flex;flex-direction:column;gap:24px">
+
+<div style="display:flex;align-items:center;justify-content:space-between;height:64px;flex-shrink:0">
+<div style="display:flex;align-items:baseline;gap:22px">
+<div class="disp" style="font-size:48px;font-weight:700;color:#F0B45A">Mantel</div>
+
+</div>
+<div style="display:flex;align-items:baseline;gap:26px">
+<div style="font-size:24px;color:#D2C0A6">Sunday · mock data</div>
+<div class="disp" style="font-size:52px;font-weight:500">2:32</div>
+</div>
+</div>
+
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:980px minmax(0,1fr);gap:32px">
+
+<section style="display:flex;flex-direction:column;gap:16px;min-height:0">
+<div style="display:flex;align-items:center;justify-content:space-between;height:44px">
+<div style="font-size:26px;font-weight:700;color:#D2C0A6">The hive · one cell per container, glow = cores in use</div>
+<div style="display:flex;gap:8px;align-items:center">
+<sc-for list="{{sorts}}" as="s" hint-placeholder-count="3">
+<button class="chip" onClick="{{s.pick}}" style="background:{{s.bg}};color:{{s.fg}}">{{s.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="height:603px;flex-shrink:0"><div style="display:flex;flex-direction:column;width:980px;transform:scale(.975);transform-origin:0 0">
+<sc-for list="{{hive}}" as="row" hint-placeholder-count="3">
+<div style="display:flex;gap:10px;margin-left:{{row.ml}};margin-top:{{row.mt}}">
+<sc-for list="{{row.cells}}" as="c" hint-placeholder-count="4">
+<div style="position:relative;width:208px;height:240px;flex-shrink:0">
+<div class="hex" style="position:absolute;inset:0;background:linear-gradient(to top, {{c.fill}} {{c.level}}, {{c.base}} {{c.level}})"></div>
+<svg class="{{c.svgCls}}" viewBox="0 0 208 240" width="208" height="240" style="position:absolute;inset:0" aria-hidden="true"><polygon points="104,4 204,62 204,178 104,236 4,178 4,62" fill="none" stroke="{{c.stroke}}" stroke-width="{{c.strokeW}}" stroke-dasharray="{{c.dash}}" stroke-linejoin="round"></polygon></svg>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 14px">
+<div class="trunc" style="font-size:20px;font-weight:700;letter-spacing:.06em;color:{{c.kindColor}};max-width:150px">{{c.top}}</div>
+<div class="disp" style="font-size:52px;font-weight:700;line-height:1.05;color:{{c.numColor}}">{{c.cpu}}</div>
+<div class="trunc" style="font-size:23px;font-weight:700;max-width:184px;color:{{c.nameColor}}">{{c.short}}</div>
+<div class="trunc" style="font-size:20px;font-weight:{{c.subWeight}};max-width:170px;color:{{c.subColor}}">{{c.sub}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{alerts}}" as="a" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:14px;font-size:24px;height:38px">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="{{a.color}}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M12 3l10 18H2z"></path><path d="M12 10v5M12 18v.5"></path></svg>
+<span class="trunc"><span style="font-weight:700;color:{{a.color}}">{{a.who}}</span> <span style="color:#EADFCB">{{a.what}}</span></span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px;min-height:0;min-width:0">
+
+<div style="background:#3A2A1E;border:3px solid #5C4431;border-radius:8px;padding:20px 26px;display:flex;flex-direction:column;gap:8px;height:216px;flex-shrink:0">
+<div style="display:flex;gap:26px;align-items:center">
+<div class="disp" style="font-size:124px;font-weight:700;line-height:.85">{{activeCount}}</div>
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+<div style="font-size:24px;font-weight:700;color:#D2C0A6">containers right now</div>
+<sc-for list="{{kinds}}" as="k" hint-placeholder-count="3">
+<div class="trunc" style="font-size:24px;display:flex;align-items:center;gap:10px"><span style="width:18px;height:18px;border-radius:9px;background:{{k.color}};flex-shrink:0"></span><span style="font-weight:700">{{k.n}}</span> {{k.label}} <span style="color:#FF8A68;font-weight:700">{{k.note}}</span></div>
+</sc-for>
+</div>
+</div>
+<div style="flex:1;min-height:0;position:relative">
+<svg viewBox="0 0 60 14" preserveAspectRatio="none" width="100%" height="100%" style="display:block;border-radius:10px" role="img" aria-label="Container count by kind, last 30 minutes">
+<polygon points="{{countRun}}" fill="#93BBD0"></polygon>
+<polygon points="{{countDb}}" fill="#AFC487"></polygon>
+<polygon points="{{countJob}}" fill="#EDE3D0"></polygon>
+</svg>
+<div style="position:absolute;left:0;top:-6px;font-size:22px;color:#D2C0A6">last 30 min</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:16px;height:196px;flex-shrink:0">
+<sc-for list="{{hostCharts}}" as="h" hint-placeholder-count="3">
+<div style="background:#3A2A1E;border:3px solid #5C4431;border-radius:8px;padding:16px 20px 0;display:flex;flex-direction:column;gap:2px;min-width:0;overflow:hidden">
+<div style="font-size:24px;font-weight:700;color:#D2C0A6">{{h.title}}</div>
+<div class="disp" style="font-size:54px;font-weight:700;line-height:1;color:{{h.numColor}}">{{h.value}}<span style="font-family:'DM Sans',sans-serif;font-size:24px;font-weight:500;color:#D2C0A6"> {{h.unit}}</span></div>
+<div class="trunc" style="font-size:20px;color:#D2C0A6">{{h.sub}}</div>
+<div style="flex:1;min-height:0;margin:0 -20px">
+<svg viewBox="0 0 100 100" preserveAspectRatio="none" width="100%" height="100%" style="display:block" aria-hidden="true">
+<polygon points="{{h.area}}" fill="rgba(240,180,90,.22)"></polygon>
+<polyline points="{{h.line}}" fill="none" stroke="#F0B45A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+</svg>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="flex:1;min-height:0;background:#3A2A1E;border:3px solid #5C4431;border-radius:8px;padding:18px 26px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:24px;font-weight:700;color:#D2C0A6">Deploys</div>
+
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;align-items:center">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#F0B45A" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" opacity=".35"></circle><path d="M12 3a9 9 0 0 1 9 9"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1.6s" repeatCount="indefinite"></animateTransform></path></svg>
+<div style="min-width:0">
+<div class="trunc" style="font-size:30px;font-weight:700">rxflow <span style="font-weight:500;color:#D2C0A6">Deploy production</span></div>
+<div class="trunc" style="font-size:24px;color:#EADFCB">Going out now · Bump pgx to v5.6 · main</div>
+</div>
+<div class="disp" style="font-size:44px;font-weight:700;color:#F0B45A">3:12</div>
+</div>
+<div style="height:14px;border-radius:7px;background:#503B2B;overflow:hidden;margin-top:-4px"><div class="running" style="height:100%;width:64%;border-radius:7px"></div></div>
+
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;align-items:center;margin-top:4px">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#FF8A68" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"></path></svg>
+<div style="min-width:0">
+<div class="trunc" style="font-size:30px;font-weight:700">reach <span style="font-weight:500;color:#D2C0A6">Deploy production</span></div>
+<div class="trunc" style="font-size:24px;color:#FF8A68;font-weight:700">Failed at e2e-tests <span style="color:#EADFCB;font-weight:500">· Fix hydration mismatch</span></div>
+</div>
+<div style="font-size:24px;color:#D2C0A6">6 min ago</div>
+</div>
+
+</div>
+
+</section>
+</div>
+<div style="display:flex;gap:16px;height:96px;flex-shrink:0;padding:0" aria-label="Machines"><div class="focus" style="position:relative;flex:1;min-width:0;height:96px;box-sizing:border-box;background:#3A2A1E;border:3px solid #F0B45A;border-radius:8px;padding:0 22px;display:flex;align-items:center;gap:18px;overflow:hidden"><svg width="44" height="51" viewBox="0 0 44 51" aria-hidden="true" style="flex-shrink:0"><polygon points="22.0,2.5 41.5,14.0 41.5,37.0 22.0,48.5 2.5,37.0 2.5,14.0" fill="#8F5F1F" stroke="#F0B45A" stroke-width="4" stroke-linejoin="round"/></svg><div style="min-width:0"><div class="trunc" style="font-size:30px;font-weight:700;line-height:1.15;color:#FFF8EA">ci-runner01</div><div class="trunc" style="font-size:24px;color:#EADFCB"><b style="color:#F0B45A">On screen</b> · paused, ◀ ▶ to change</div></div><div style="position:absolute;left:0;right:0;bottom:0;height:6px;background:#503B2B"><div style="width:36%;height:100%;background:#AD9D87"></div></div></div><div class="" style="position:relative;flex:1;min-width:0;height:96px;box-sizing:border-box;background:#3A2A1E;border:3px solid #FF8A68;border-radius:8px;padding:0 22px;display:flex;align-items:center;gap:18px;overflow:hidden"><svg width="44" height="51" viewBox="0 0 44 51" aria-hidden="true" style="flex-shrink:0"><polygon points="22.0,2.5 41.5,14.0 41.5,37.0 22.0,48.5 2.5,37.0 2.5,14.0" fill="none" stroke="#FF8A68" stroke-width="4" stroke-linejoin="round"/><path d="M22.0 15.299999999999999v13.26M22.0 35.699999999999996v1.02" stroke="#FF8A68" stroke-width="4" stroke-linecap="round"/></svg><div style="min-width:0"><div class="trunc" style="font-size:30px;font-weight:700;line-height:1.15;color:#FF8A68">attic-nas</div><div class="trunc" style="font-size:24px;color:#EADFCB">backup-db is at 92% of its 2 GB memory cap</div></div></div><div class="" style="position:relative;flex:1;min-width:0;height:96px;box-sizing:border-box;background:#3A2A1E;border:3px solid #5C4431;border-radius:8px;padding:0 22px;display:flex;align-items:center;gap:18px;overflow:hidden"><svg width="44" height="51" viewBox="0 0 44 51" aria-hidden="true" style="flex-shrink:0"><polygon points="22.0,2.5 41.5,14.0 41.5,37.0 22.0,48.5 2.5,37.0 2.5,14.0" fill="none" stroke="#6B5442" stroke-width="4" stroke-linejoin="round" stroke-dasharray="6 5"/></svg><div style="min-width:0"><div class="trunc" style="font-size:30px;font-weight:700;line-height:1.15;color:#AD9D87">printer-pi</div><div class="trunc" style="font-size:24px;color:#EADFCB"><span style="color:#AD9D87">has not answered for 4 min</span></div></div></div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"live":{"editor":"boolean","default":true},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+  init() {
+    const mk = (name, short, kind, uptime, cpu, memMB, capMB, extra) => {
+      const hist = [];
+      for (let i = 0; i < 10; i++) hist.push(cpu);
+      return Object.assign({ name, short, kind, uptime, cpu, base: cpu, memMB, capMB, hist }, extra || {});
+    };
+    this.d = {
+      t: 0,
+      rows: [
+        mk('rxflow-runner-runner-1', 'rxflow 1', 'run', '4 min', 3.2, 2870, 0),
+        mk('rxflow-runner-runner-2', 'rxflow 2', 'run', '14 min', 11.8, 6240, 0, { hotFor: '14 min' }),
+        mk('rxflow-runner-runner-3', 'rxflow 3', 'run', '1 min', 0.1, 310, 0),
+        mk('reach-runner-runner-1', 'reach 1', 'run', '9 min', 1.9, 1430, 0),
+        mk('reach-runner-runner-2', 'reach 2', 'run', '', 0, 0, 0, { missing: '3 min' }),
+        mk('krakentv-runner-runner-1', 'krakentv 1', 'run', '2 h', 0.8, 3690, 4096),
+        mk('rxflow-postgres-e2e', 'postgres-e2e', 'db', '6 d', 0.6, 412, 0),
+        mk('magical_noyce', 'magical_noyce', 'db', '13 min', 1.4, 286, 0),
+        mk('vigilant_hopper', 'vigilant_hopper', 'db', '4 min', 0.3, 198, 0),
+        mk('rxflow-e2e-web-1', 'e2e-web-1', 'job', '3 min', 2.2, 1120, 0),
+        mk('redis-test-7f3a', 'redis-test', 'job', '3 min', 0.1, 24, 0),
+        mk('quirky_banach', 'quirky_banach', 'db', '', 0, 0, 0, { ended: '20 s ago' })
+      ],
+      hostCpu: [], hostMem: [], hostLoad: []
+    };
+    for (let i = 0; i < 60; i++) {
+      const busy = i > 32 ? 1 : 0;
+      this.d.hostCpu.push(14 + busy * 44 + 8 * Math.sin(i * 0.4) + 5 * Math.sin(i * 1.3));
+      this.d.hostMem.push(15.5 + busy * 5.2 + 0.6 * Math.sin(i * 0.3));
+      this.d.hostLoad.push(2.2 + busy * Math.min(8.5, (i - 32) * 0.7) + 0.5 * Math.sin(i * 0.6));
+    }
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      if ((this.props.live ?? true) === false || !this.d) return;
+      const d = this.d;
+      d.t++;
+      let sum = 0;
+      d.rows.forEach((r) => {
+        if (r.missing || r.ended) return;
+        r.cpu = Math.max(0.02, r.base * (1 + 0.22 * Math.sin(d.t * 0.7 + r.name.length) + (Math.random() - 0.5) * 0.3));
+        r.hist.push(r.cpu); r.hist.shift();
+        sum += r.cpu;
+      });
+      d.hostCpu.push(Math.min(100, (sum + 0.8) / 32 * 100)); d.hostCpu.shift();
+      d.hostMem.push(21.4 + 0.3 * Math.sin(d.t * 0.2)); d.hostMem.shift();
+      d.hostLoad.push(d.hostLoad[59] + (sum * 0.45 - d.hostLoad[59]) * 0.08); d.hostLoad.shift();
+      this.forceUpdate();
+    }, 2000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    if (!this.d) this.init();
+    const d = this.d;
+    const sort = (this.state && this.state.sort) || 'cpu';
+    const KIND = { run: ['RUNNER', '#93BBD0'], db: ['DATABASE', '#AFC487'], job: ['JOB', '#EDE3D0'] };
+    const AMBER = '#F0B45A', RED = '#FF8A68', DIM = '#AD9D87';
+    const avg = (h) => h.reduce((a, b) => a + b, 0) / h.length;
+    const fmtMem = (r) => {
+      const g = (mb) => (mb / 1024).toFixed(1);
+      if (r.capMB) return g(r.memMB) + ' of ' + g(r.capMB) + ' GB';
+      return r.memMB >= 1024 ? g(r.memMB) + ' GB' : r.memMB + ' MB';
+    };
+    const alerts = [];
+    const cells = d.rows.map((r) => {
+      const live = !r.missing && !r.ended;
+      const memPct = r.capMB ? r.memMB / r.capMB * 100 : 0;
+      const memHot = memPct >= 85;
+      const hot = !!r.hotFor;
+      const kc = KIND[r.kind];
+      if (r.missing) alerts.push({ who: r.short, what: 'should be running but has been gone for ' + r.missing, color: RED });
+      if (hot) alerts.push({ who: r.short, what: 'has held about ' + Math.round(r.cpu) + ' cores for ' + r.hotFor, color: AMBER });
+      if (memHot) alerts.push({ who: r.short, what: 'is at ' + Math.round(memPct) + '% of its 4 GB memory cap', color: RED });
+      return {
+        _cpu: live ? avg(r.hist) : -1, _mem: live ? r.memMB : -1, _name: r.name, _pin: r.missing ? 0 : r.ended ? 2 : 1,
+        short: r.short,
+        top: r.missing ? 'MISSING' : r.ended ? 'ENDED' : kc[0] + ' · ' + r.uptime,
+        kindColor: r.missing ? RED : r.ended ? DIM : kc[1],
+        cpu: live ? r.cpu.toFixed(1) : '—',
+        numColor: live ? '#FFF8EA' : DIM,
+        nameColor: r.ended ? DIM : '#F2E9DA',
+        sub: r.missing ? 'gone ' + r.missing : r.ended ? r.ended : hot ? 'busy ' + r.hotFor : fmtMem(r),
+        subColor: r.missing || memHot ? RED : r.ended ? DIM : hot ? '#FFD08A' : '#E0D3BD',
+        subWeight: r.missing || memHot || hot ? '700' : '500',
+        level: live ? Math.round(Math.min(100, Math.sqrt(r.cpu / 12) * 100)) + '%' : '0%',
+        fill: hot ? '#B4701C' : '#8F5F1F',
+        base: r.missing ? '#3F2018' : r.ended ? '#2F2118' : '#3D2C20',
+        stroke: r.missing || memHot ? RED : r.ended ? '#6B5442' : hot ? AMBER : kc[1],
+        strokeW: r.missing || memHot || hot ? '6' : '4',
+        dash: r.missing || r.ended ? '12 10' : 'none',
+        svgCls: r.missing ? 'pulse' : ''
+      };
+    });
+    cells.sort((a, b) => a._pin - b._pin || (sort === 'name' ? a._name.localeCompare(b._name) : sort === 'mem' ? b._mem - a._mem : b._cpu - a._cpu));
+    const hive = [0, 1, 2].map((i) => ({ cells: cells.slice(i * 4, i * 4 + 4), ml: i === 1 ? '109px' : '0px', mt: i === 0 ? '0px' : '-51px' }));
+
+    const liveRows = d.rows.filter((r) => !r.missing && !r.ended);
+    const nOf = (k) => liveRows.filter((r) => r.kind === k).length;
+    const kinds = [
+      { n: nOf('run'), label: 'runners', color: '#93BBD0', note: '· 1 missing' },
+      { n: nOf('db'), label: 'job databases', color: '#AFC487', note: '' },
+      { n: nOf('job'), label: 'job containers', color: '#EDE3D0', note: '' }
+    ];
+    const cRun = [], cDb = [], cJob = [];
+    for (let i = 0; i < 60; i++) {
+      cRun.push(i >= 54 ? 5 : 6);
+      cDb.push(i < 20 ? 1 : i < 34 ? 0 : i < 44 ? 2 : i < 59 ? 4 : 3);
+      cJob.push(i < 12 ? 1 : i < 34 ? 0 : i < 40 ? 1 : i < 52 ? 3 : 2);
+    }
+    const band = (lo, hi) => {
+      const top = [], bot = [];
+      for (let i = 0; i < 60; i++) top.push(i + ',' + (14 - hi[i]), (i + 1) + ',' + (14 - hi[i]));
+      for (let i = 59; i >= 0; i--) bot.push((i + 1) + ',' + (14 - lo[i]), i + ',' + (14 - lo[i]));
+      return top.concat(bot).join(' ');
+    };
+    const zero = cRun.map(() => 0);
+    const s1 = cRun, s2 = cRun.map((v, i) => v + cDb[i]), s3 = s2.map((v, i) => v + cJob[i]);
+
+    const chart = (a, maxV) => {
+      const pts = a.map((v, i) => (i * 100 / (a.length - 1)).toFixed(1) + ',' + (100 - Math.min(v, maxV) / maxV * 90).toFixed(1)).join(' ');
+      return { line: pts, area: pts + ' 100,100 0,100' };
+    };
+    const cpuNow = d.hostCpu[59], memNow = d.hostMem[59], loadNow = d.hostLoad[59];
+    const hostCharts = [
+      Object.assign({ title: 'CPU', value: Math.round(cpuNow), unit: '%', sub: (cpuNow * 0.32).toFixed(1) + ' of 32 cores', numColor: cpuNow >= 90 ? RED : '#FFF8EA' }, chart(d.hostCpu, 100)),
+      Object.assign({ title: 'Memory', value: memNow.toFixed(1), unit: 'GB', sub: Math.round(memNow / 59 * 100) + '% of 59 GB', numColor: '#FFF8EA' }, chart(d.hostMem, 59)),
+      Object.assign({ title: 'Load', value: loadNow.toFixed(1), unit: '', sub: '5 m 7.2 · 15 m 5.1', numColor: '#FFF8EA' }, chart(d.hostLoad, 32))
+    ];
+    const sorts = [['cpu', 'Busiest'], ['mem', 'Memory'], ['name', 'Name']].map(([id, label]) => ({
+      label, pick: () => this.setState({ sort: id }),
+      bg: sort === id ? '#F0B45A' : '#3A2A1E', fg: sort === id ? '#1A140C' : '#E0D3BD'
+    }));
+    alerts.length = Math.min(alerts.length, 2);
+    return {
+      hive, alerts, kinds, hostCharts, sorts,
+      activeCount: liveRows.length,
+      countRun: band(zero, s1), countDb: band(s1, s2), countJob: band(s2, s3)
+    };
+  }
+}
+</script>
+</body>
+</html>
