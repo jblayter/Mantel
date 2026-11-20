@@ -10,7 +10,7 @@ import kotlinx.coroutines.coroutineScope
  * The CI box, read through the Glances 4 REST API. Only ever sends GET
  * requests: Mantel is read-only.
  *
- * @param glancesUrl root of the Glances web server, e.g. `http://192.168.6.35:61208`.
+ * @param glancesUrl root of the Glances web server, e.g. `http://192.168.6.38:61208`.
  * @param get fetches one URL as text, throwing on any failure.
  */
 class GlancesHostSource(

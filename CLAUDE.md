@@ -70,7 +70,7 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 - Config arrives as an adb-pushed file, never in the APK or repo. The Fire TV
   (Android 11) refuses a push into `/sdcard/Android/data`, so the route is
   `/data/local/tmp` then `run-as cp` into internal storage.
-- The CI box is `192.168.6.35`; the Fire TV (`192.168.6.226`) cannot resolve
+- The CI box is `192.168.6.38`; the Fire TV (`192.168.6.226`) cannot resolve
   `.local` names, so configs carry the IP.
 - The box's name, thread count and total memory on screen come from Glances
   (`/system` hostname, `/load` cpucore, `/mem` total). Never hard-code them;
