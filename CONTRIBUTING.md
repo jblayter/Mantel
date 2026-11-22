@@ -22,6 +22,8 @@ See [Build](README.md#build) in the README. Before opening a pull request:
 
 Check screen changes on a 1080p Android TV emulator with a screenshot
 (`adb exec-out screencap -p > screen.png`) and attach it to the pull request.
+If the change shows in a README screenshot (`docs/screenshots`), replace that
+screenshot in the same pull request.
 
 ## Themes
 

@@ -4,15 +4,32 @@ An always-on Android TV wall display for a home CI box. From across the room it 
 
 Mantel is open source (Apache 2.0) and read-only. It cannot start, stop or change a container, a machine or a workflow.
 
+![The Mantel dashboard in the Hive layout: honeycomb cells for each container, warnings, host charts and a deploy going out](docs/screenshots/dashboard.png)
+
 ## What it shows
 
-- **The hive.** One hexagon per container on the machine, from [Glances](https://nicolargo.github.io/glances/). The glow in a cell is how many cores it is using, and the line under the name is its memory. Runners, job databases and job containers have their own outline color and word. A container that ended lingers for a minute, and a runner that should be there and is not shows as "missing".
+- **The hive.** One hexagon per container on the machine, from [Glances](https://nicolargo.github.io/glances/). The glow in a cell is how many cores it is using, and the line under the name is its memory. Runners, job databases and job containers have their own outline color and word. The cells are ordered busiest first; the Busiest, Memory and Name chips above them change the order. A container that ended lingers for a minute, and a runner that should be there and is not shows as "missing".
 - **Warnings.** Up to three plain sentences under the hive, such as a container near its memory cap or a missing runner.
 - **The machine.** How many containers are running and of which kind over the last 30 minutes, then CPU, memory and load, each with a small trend.
 - **Deploys.** GitHub Actions runs from the repositories you choose. Runs that are going show a timer and a progress bar; finished ones show passed or failed, and which job failed. While anything ran in the last hour the card shows only that; otherwise it shows each repository's latest runs, one repository at a time.
 - **Several machines.** With more than one machine the display shows one at a time and takes turns. A shelf along the bottom has a plaque for each, which says if another machine has a problem or has stopped answering.
 
 If the machine stops answering, the screen dims to its last reading and says for how long.
+
+## Screenshots
+
+All taken on a 1080p Android TV emulator; the dashboards use the built-in sample data.
+
+| Several machines, between deploys | Settings |
+| --- | --- |
+| ![Three machines: the hive of the one on screen, its latest runs, and a shelf of plaques for all three, one of which has stopped answering](docs/screenshots/several-machines.png) | ![Settings: the machines, the Look card with layout and theme, and the deploys card](docs/screenshots/settings.png) |
+| One machine on screen at a time, a plaque for each along the bottom. With no run in the last hour the deploys card shows each repository's latest runs. | Machines, the look (layout and theme) and GitHub. |
+
+| Setup: choose machines | Setup: sign in to GitHub | Setup: ready |
+| --- | --- | --- |
+| ![Setup step 1: the machines that answered on the network, as cells](docs/screenshots/setup-machines.png) | ![Setup step 2: a short code and a QR code for GitHub's device sign-in](docs/screenshots/setup-github.png) | ![The Ready screen listing what Mantel will show](docs/screenshots/setup-ready.png) |
+
+The same screen in the three layouts and some of their themes is under [Layouts and themes](#layouts-and-themes).
 
 ## What you need
 
@@ -181,11 +198,16 @@ The main screen comes in three **layouts**:
 
 Each layout has its own color **themes**:
 
+| Hive: Moss | Hive: Nightfall | NOC: Amber Ops | Neon: Synthwave |
+| --- | --- | --- | --- |
+| ![Moss](docs/screenshots/hive-moss.png) | ![Nightfall](docs/screenshots/hive-nightfall.png) | ![Amber Ops](docs/design/layouts/previews/noc-amber.png) | ![Synthwave](docs/design/layouts/previews/neon-synthwave.png) |
+
 - **Hive:** Hive, Moss, Nightfall.
 - **NOC:** NOC, Amber Ops, High Contrast, Solar.
 - **Neon:** Neon, Synthwave, Ice, Phosphor.
 
-Screenshots of every NOC and Neon theme are in
+Screenshots of every NOC and Neon theme, and of NOC and Neon with a machine
+that has stopped answering, are in
 [`docs/design/layouts/previews`](docs/design/layouts/previews). Choose both in settings (the Look
 card), or from a computer with adb by the theme's id:
 
