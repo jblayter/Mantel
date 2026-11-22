@@ -179,8 +179,14 @@ The main screen comes in three **layouts**:
 | ![Hive](docs/design/layouts/previews/hive.png) | ![NOC](docs/design/layouts/previews/noc.png) | ![Neon](docs/design/layouts/previews/neon.png) |
 | Honeycomb cells and warm cards. | A network-operations wall: counts by severity, every container in a table, an event list. | Cyberpunk: neon-outlined tiles, a CPU ring, a deploy log. |
 
-Each layout has its own color **themes**: Hive comes with Hive, Moss and
-Nightfall; NOC and Neon with one each. Choose both in settings (the Look
+Each layout has its own color **themes**:
+
+- **Hive:** Hive, Moss, Nightfall.
+- **NOC:** NOC, Amber Ops, High Contrast, Solar.
+- **Neon:** Neon, Synthwave, Ice, Phosphor.
+
+Screenshots of every NOC and Neon theme are in
+[`docs/design/layouts/previews`](docs/design/layouts/previews). Choose both in settings (the Look
 card), or from a computer with adb by the theme's id:
 
 ```bash

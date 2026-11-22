@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "noc-amber",
+  "name": "Amber Ops",
+  "description": "Warm amber on charcoal, like an old ops console.",
+  "author": "Mantel",
+  "layout": "noc",
+  "color": {
+    "ground": "#0F0D0A",
+    "surface": "#18140F",
+    "surfaceBorder": "#3A3024",
+    "track": "#2A231A",
+    "text": "#EFE6D8",
+    "textBright": "#FFF8EC",
+    "textSecondary": "#DCD1BF",
+    "textMuted": "#B5A890",
+    "textDim": "#938672",
+    "textSoft": "#CFC3AE",
+    "textOnAmber": "#1A1205",
+    "amber": "#FFB547",
+    "amberDeep": "#C4862A",
+    "amberSoft": "#FFD38F",
+    "chartFill": "rgba(255,181,71,0.18)",
+    "kind": {
+      "runner": "#8CC8E8",
+      "database": "#9BD48A",
+      "job": "#E2C6F0"
+    },
+    "status": {
+      "inProgress": "#FFB547",
+      "success": "#8BD694",
+      "trouble": "#FF6B5E",
+      "inactive": "#938672"
+    },
+    "cell": {
+      "base": "#1B1712",
+      "baseMissing": "#2C1412",
+      "baseEnded": "#14110D",
+      "glow": "#5A3D12",
+      "glowHot": "#7F5414",
+      "strokeEnded": "#4A4034"
+    },
+    "focus": "#FFF8EC"
+  }
+}

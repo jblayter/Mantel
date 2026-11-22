@@ -43,6 +43,17 @@ class ThemeTest {
     fun theExampleThemesAreBuiltIn() {
         val ids = HiveThemes.all.map { it.id }.toSet()
         assertTrue(ids.containsAll(setOf("hive", "moss", "nightfall", "noc", "neon")))
+        assertTrue(ids.containsAll(setOf("noc-amber", "noc-contrast", "noc-solar", "neon-synthwave", "neon-ice", "neon-phosphor")))
+    }
+
+    @Test
+    fun eachNewLayoutHasAtLeastThreeThemes() {
+        for (layout in listOf(MantelLayout.NOC, MantelLayout.NEON)) assertTrue(themesFor(layout).size >= 3)
+    }
+
+    @Test
+    fun aLayoutListsItsOwnThemeFirst() {
+        for (layout in MantelLayout.entries) assertEquals(layout.id, themesFor(layout).first().id)
     }
 
     @Test

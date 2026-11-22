@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "neon-synthwave",
+  "name": "Synthwave",
+  "description": "Sunset orange and electric cyan on deep purple.",
+  "author": "Mantel",
+  "layout": "neon",
+  "color": {
+    "ground": "#120A1F",
+    "surface": "#1C1030",
+    "surfaceBorder": "#4A2B6E",
+    "track": "#2C1B45",
+    "text": "#F3E9FF",
+    "textBright": "#FFF9FF",
+    "textSecondary": "#E0D0F5",
+    "textMuted": "#BCA8DA",
+    "textDim": "#9C8ABB",
+    "textSoft": "#D4C2EE",
+    "textOnAmber": "#1F0A00",
+    "amber": "#FF9E4A",
+    "amberDeep": "#C4692A",
+    "amberSoft": "#FFC48F",
+    "chartFill": "rgba(255,158,74,0.20)",
+    "kind": {
+      "runner": "#4DE1FF",
+      "database": "#7CFFB2",
+      "job": "#FFE45E"
+    },
+    "status": {
+      "inProgress": "#FF9E4A",
+      "success": "#7CFFB2",
+      "trouble": "#FF4D6D",
+      "inactive": "#9C8ABB"
+    },
+    "cell": {
+      "base": "#1E1233",
+      "baseMissing": "#36102A",
+      "baseEnded": "#150C24",
+      "glow": "#4E2A6E",
+      "glowHot": "#6E3590",
+      "strokeEnded": "#4A3A66"
+    },
+    "focus": "#FFF9FF"
+  }
+}

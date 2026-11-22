@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "neon-phosphor",
+  "name": "Phosphor",
+  "description": "Phosphor green terminal on black, with cyan and yellow kinds.",
+  "author": "Mantel",
+  "layout": "neon",
+  "color": {
+    "ground": "#020A04",
+    "surface": "#06140A",
+    "surfaceBorder": "#1C4A28",
+    "track": "#0F2A16",
+    "text": "#D8FFE0",
+    "textBright": "#F0FFF3",
+    "textSecondary": "#B8F0C4",
+    "textMuted": "#8FD09F",
+    "textDim": "#6FA87D",
+    "textSoft": "#A8E4B6",
+    "textOnAmber": "#001A07",
+    "amber": "#3DFF7A",
+    "amberDeep": "#1FA84B",
+    "amberSoft": "#9BFFB9",
+    "chartFill": "rgba(61,255,122,0.16)",
+    "kind": {
+      "runner": "#5CE1FF",
+      "database": "#E8FF5C",
+      "job": "#F0F0F0"
+    },
+    "status": {
+      "inProgress": "#3DFF7A",
+      "success": "#E8FF5C",
+      "trouble": "#FF5A4F",
+      "inactive": "#6FA87D"
+    },
+    "cell": {
+      "base": "#08180D",
+      "baseMissing": "#2A0C0A",
+      "baseEnded": "#040E07",
+      "glow": "#0F4A22",
+      "glowHot": "#157030",
+      "strokeEnded": "#2E5A3A"
+    },
+    "focus": "#F0FFF3"
+  }
+}

@@ -7,15 +7,30 @@ so every layout can have as many color themes as people write.
 | Layout | Id | Default theme | What it is |
 | --- | --- | --- | --- |
 | Hive | `hive` | `hive.json` (also `moss`, `nightfall`) | The approved design: honeycomb cells, craftsman cards, Fraunces and DM Sans. `../DESIGN.md`. |
-| NOC | `noc` | `noc.json` | A network-operations wall: severity counts, a table of every container worst first, host tiles, an event list, every deploy in one table. |
-| Neon | `neon` | `neon.json` | Cyberpunk: chamfered tiles with lit outlines and segment bars, a CPU ring, a deploy log, monospace throughout. |
+| NOC | `noc` | `noc.json` (also `noc-amber`, `noc-contrast`, `noc-solar`) | A network-operations wall: severity counts, a table of every container worst first, host tiles, an event list, every deploy in one table. |
+| Neon | `neon` | `neon.json` (also `neon-synthwave`, `neon-ice`, `neon-phosphor`) | Cyberpunk: chamfered tiles with lit outlines and segment bars, a CPU ring, a deploy log, monospace throughout. |
 
 Screenshots from the 1080p emulator are in `previews/`: each layout
-on the sample screen, plus NOC and Neon with a machine that has stopped
-answering.
+on the sample screen, NOC and Neon with a machine that has stopped
+answering, and every NOC and Neon theme (`previews/<theme id>.png`).
+
+| NOC theme | Look |
+| --- | --- |
+| NOC | Graphite and steady blue. |
+| Amber Ops | Warm amber on charcoal, like an old ops console. |
+| High Contrast | Black, white and bold signal colors, for far away or low vision. |
+| Solar | Deep teal with warm yellow, after the Solarized palette. |
+
+| Neon theme | Look |
+| --- | --- |
+| Neon | Magenta, cyan and acid on near black. |
+| Synthwave | Sunset orange and electric cyan on deep purple. |
+| Ice | Cold cyan and violet on blue-black. |
+| Phosphor | Phosphor green terminal on black, with cyan and yellow kinds. |
 
 Settings has a Look card: a row of layouts and a row of the chosen layout's
-themes. Choosing a layout opens it on the theme whose id is the layout's id.
+themes, the layout's own theme first. Choosing a layout opens it on the
+theme whose id is the layout's id.
 From a computer: `adb shell am start -n com.blayter.mantel/.MainActivity --es theme noc`.
 
 Only the main screen has layouts. Setup, settings, loading and the machine
