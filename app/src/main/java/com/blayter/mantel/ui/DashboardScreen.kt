@@ -22,7 +22,11 @@ import com.blayter.mantel.ui.panel.CountCard
 import com.blayter.mantel.ui.panel.DeploysCard
 import com.blayter.mantel.ui.panel.HostCharts
 import com.blayter.mantel.ui.panel.ModeChangeMillis
+import com.blayter.mantel.ui.layout.NeonDashboard
+import com.blayter.mantel.ui.layout.NocDashboard
+import com.blayter.mantel.ui.theme.ActiveTheme
 import com.blayter.mantel.ui.theme.HiveTokens
+import com.blayter.mantel.ui.theme.MantelLayout
 
 internal val HostChartsHeight = 196.dp
 
@@ -34,6 +38,9 @@ private const val HIVE_SCALE_WITH_SHELF = 0.975f
 private const val WARNINGS_WITH_SHELF = 2
 
 /**
+ * The main screen, in the layout of the theme in use. The rest of this
+ * comment is the Hive layout; NOC and Neon are in `ui/layout`.
+ *
  * The main Hive screen. Fully readable with zero interaction. When the CI box
  * stops answering it keeps the last reading on screen, visibly stale.
  *
@@ -55,6 +62,23 @@ fun DashboardScreen(
     repoNames: List<String> = emptyList(),
     machineKey: Int = 0,
     shelf: (@Composable () -> Unit)? = null,
+) {
+    // The theme in use picks the layout. Every layout gets the same state and follows the same product rules.
+    when (ActiveTheme.theme.layout) {
+        MantelLayout.HIVE -> HiveDashboard(state, dataNote, repoNames, machineKey, shelf)
+        MantelLayout.NOC -> NocDashboard(state, dataNote, repoNames, machineKey, shelf)
+        MantelLayout.NEON -> NeonDashboard(state, dataNote, repoNames, machineKey, shelf)
+    }
+}
+
+/** The Hive layout: the approved main screen. */
+@Composable
+private fun HiveDashboard(
+    state: DashboardState,
+    dataNote: String?,
+    repoNames: List<String>,
+    machineKey: Int,
+    shelf: (@Composable () -> Unit)?,
 ) {
     val several = shelf != null
     val board = remember(state.deploys) { deployBoard(state.deploys) }

@@ -2,7 +2,8 @@
 
 Mantel is an always-on Android TV wall display for a home CI box. This document
 is the approved visual direction and the rules behind it. Machine-readable
-values are in [`tokens.json`](tokens.json); the approved mockup source is in
+values are in [`tokens.json`](tokens.json) and the colors in
+[`themes/hive.json`](themes/hive.json); the approved mockup source is in
 [`mockups/Hive.dc.html`](mockups/Hive.dc.html).
 
 Live mockup (private to the owner): https://claude.ai/artifact/4Fd3qbhw8M1wowTr43kE39
@@ -28,7 +29,11 @@ look like it belongs on that wall, not like a terminal.
 
 ## Color
 
-All colors are in `tokens.json`. Roles:
+The Hive colors are in `themes/hive.json`, the default theme. Other themes
+(`themes/`, see `themes/README.md`) recolor the same roles and keep the same
+rules. This document is the Hive layout; the NOC and Neon layouts of the main
+screen (`layouts/README.md`) keep its product rules but not its shapes or
+type. Hive roles:
 
 | Role | Value | Use |
 | --- | --- | --- |

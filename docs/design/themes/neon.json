@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "neon",
+  "name": "Neon",
+  "description": "Cyberpunk: near-black with magenta, cyan and acid lines.",
+  "author": "Mantel",
+  "layout": "neon",
+  "color": {
+    "ground": "#07060D",
+    "surface": "#110D1E",
+    "surfaceBorder": "#3A2A63",
+    "track": "#221A3A",
+    "text": "#ECE8FF",
+    "textBright": "#FBF9FF",
+    "textSecondary": "#D6CFF5",
+    "textMuted": "#ABA2D4",
+    "textDim": "#8A80B6",
+    "textSoft": "#C7BFEA",
+    "textOnAmber": "#14001A",
+    "amber": "#FF4FE3",
+    "amberDeep": "#B02A9C",
+    "amberSoft": "#FF9BF0",
+    "chartFill": "rgba(255,79,227,0.18)",
+    "kind": {
+      "runner": "#3CEBFF",
+      "database": "#B8FF3C",
+      "job": "#FFE14D"
+    },
+    "status": {
+      "inProgress": "#FF4FE3",
+      "success": "#B8FF3C",
+      "trouble": "#FF6A3D",
+      "inactive": "#8A80B6"
+    },
+    "cell": {
+      "base": "#120E22",
+      "baseMissing": "#2A0F12",
+      "baseEnded": "#0D0A17",
+      "glow": "#4A1A63",
+      "glowHot": "#7A1F86",
+      "strokeEnded": "#3E3560"
+    },
+    "focus": "#FBF9FF"
+  }
+}

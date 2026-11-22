@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jblayter/mantel/docs/design/themes/theme.schema.json",
+  "title": "Mantel theme",
+  "description": "One color theme for the Mantel TV display, for one layout of the main screen. Every color role must be given. The build reads the color roles from this file, so a role added here must be added to every theme. See README.md in this folder.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "description", "author", "color"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "description": "The file name without .json. Lowercase letters, digits and dashes. Stored on the TV, so never rename a published theme.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,23}$"
+    },
+    "name": {
+      "description": "What settings shows on the theme's button. One or two words.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16
+    },
+    "description": {
+      "description": "One sentence for settings: what the theme looks like.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "author": {
+      "description": "Your name or GitHub login.",
+      "type": "string",
+      "minLength": 1
+    },
+    "layout": {
+      "description": "Which main-screen layout the theme is for. Layouts are code (see docs/design/layouts); a theme only picks one. Leave it out for hive.",
+      "enum": ["hive", "noc", "neon"],
+      "default": "hive"
+    },
+    "color": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ground", "surface", "surfaceBorder", "track",
+        "text", "textBright", "textSecondary", "textMuted", "textDim", "textSoft", "textOnAmber",
+        "amber", "amberDeep", "amberSoft", "chartFill",
+        "kind", "status", "cell", "focus"
+      ],
+      "properties": {
+        "ground": { "$ref": "#/$defs/solid", "description": "Screen background. Must be dark: a TV shows it for hours." },
+        "surface": { "$ref": "#/$defs/solid", "description": "Cards and unselected chips." },
+        "surfaceBorder": { "$ref": "#/$defs/solid", "description": "The 3px card border." },
+        "track": { "$ref": "#/$defs/solid", "description": "The empty part of bars." },
+        "text": { "$ref": "#/$defs/solid", "description": "Body text." },
+        "textBright": { "$ref": "#/$defs/solid", "description": "Key numbers and names." },
+        "textSecondary": { "$ref": "#/$defs/solid", "description": "Supporting lines." },
+        "textMuted": { "$ref": "#/$defs/solid", "description": "Labels and captions." },
+        "textDim": { "$ref": "#/$defs/solid", "description": "Ended and inactive things." },
+        "textSoft": { "$ref": "#/$defs/solid", "description": "Unselected chip labels, the memory line in a cell." },
+        "textOnAmber": { "$ref": "#/$defs/solid", "description": "Text on the accent (the main button)." },
+        "amber": { "$ref": "#/$defs/solid", "description": "The accent: wordmark, chart lines, main button. Named for the Hive theme; it need not be amber." },
+        "amberDeep": { "$ref": "#/$defs/solid", "description": "Darker accent: the stripes of a running deploy's bar." },
+        "amberSoft": { "$ref": "#/$defs/solid", "description": "Lighter accent." },
+        "chartFill": { "$ref": "#/$defs/color", "description": "The area under the host charts. Usually the accent with alpha about 0.22." },
+        "kind": {
+          "description": "Outline color of a container cell, by kind.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["runner", "database", "job"],
+          "properties": {
+            "runner": { "$ref": "#/$defs/solid", "description": "Long-lived CI runners." },
+            "database": { "$ref": "#/$defs/solid", "description": "Job databases." },
+            "job": { "$ref": "#/$defs/solid", "description": "Any other job container." }
+          }
+        },
+        "status": {
+          "description": "Deploy and machine status. Always paired with a word or icon on screen.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["inProgress", "success", "trouble", "inactive"],
+          "properties": {
+            "inProgress": { "$ref": "#/$defs/solid", "description": "Running. Usually the accent." },
+            "success": { "$ref": "#/$defs/solid", "description": "Passed, the ticks of a ticked list." },
+            "trouble": { "$ref": "#/$defs/solid", "description": "Failed, missing runner, memory near cap, not answering." },
+            "inactive": { "$ref": "#/$defs/solid", "description": "Skipped, waiting. Usually textDim." }
+          }
+        },
+        "cell": {
+          "description": "The hexagon cells of the hive.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["base", "baseMissing", "baseEnded", "glow", "glowHot", "strokeEnded"],
+          "properties": {
+            "base": { "$ref": "#/$defs/solid", "description": "Fill of a normal cell." },
+            "baseMissing": { "$ref": "#/$defs/solid", "description": "Fill of a missing runner's cell; a hint of trouble." },
+            "baseEnded": { "$ref": "#/$defs/solid", "description": "Fill of a container that ended." },
+            "glow": { "$ref": "#/$defs/solid", "description": "The glow rising in a busy cell." },
+            "glowHot": { "$ref": "#/$defs/solid", "description": "The glow of a very busy cell." },
+            "strokeEnded": { "$ref": "#/$defs/solid", "description": "Dashed outline of an ended cell." }
+          }
+        },
+        "focus": { "$ref": "#/$defs/solid", "description": "The ring around the focused button. Must stand out on ground and surface." }
+      }
+    }
+  },
+  "$defs": {
+    "solid": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^(#[0-9A-Fa-f]{6}|rgba\\(\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3},\\s*(0|1|0?\\.\\d+)\\))$"
+    }
+  }
+}

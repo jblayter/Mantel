@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.tv.material3.Text
 import com.blayter.mantel.data.DashboardRepository.Companion.TREND_SAMPLES
+import com.blayter.mantel.domain.HOST_CPU_TROUBLE_PERCENT
 import com.blayter.mantel.domain.HostInfo
 import com.blayter.mantel.domain.HostTrends
 import com.blayter.mantel.ui.theme.HiveTokens
@@ -49,8 +50,6 @@ private val LineWidth = 4.dp
 // Not in a mockup: text over the chart.
 private val TextOutlineWidth = 8.dp
 
-/** Host CPU at or above this turns the number coral, as in the mockup. */
-private const val CPU_TROUBLE_PERCENT = 90f
 
 private fun one(v: Float) = String.format(Locale.US, "%.1f", v)
 
@@ -79,7 +78,7 @@ fun HostCharts(
             sub = "${one(cpu / 100 * host.threads)} of ${host.threads} cores",
             series = trends.cpuPercent,
             scaleMax = 100f,
-            valueColor = if (cpu >= CPU_TROUBLE_PERCENT) HiveTokens.Color.Status.trouble else HiveTokens.Color.textBright,
+            valueColor = if (cpu >= HOST_CPU_TROUBLE_PERCENT) HiveTokens.Color.Status.trouble else HiveTokens.Color.textBright,
             stale = stale,
             compact = compact,
             modifier = Modifier.weight(1f),
