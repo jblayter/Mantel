@@ -1,5 +1,6 @@
 package com.blayter.mantel
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -56,8 +57,11 @@ import com.blayter.mantel.ui.setup.SETTINGS_MACHINES_SUBTITLE
 import com.blayter.mantel.ui.setup.SettingsDeploys
 import com.blayter.mantel.ui.setup.SettingsMachine
 import com.blayter.mantel.ui.setup.SettingsScreen
+import com.blayter.mantel.ui.theme.ActiveTheme
+import com.blayter.mantel.ui.theme.HiveThemes
 import com.blayter.mantel.ui.theme.HiveTokens
 import com.blayter.mantel.ui.theme.MantelTheme
+import com.blayter.mantel.ui.theme.ThemeStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -102,6 +106,7 @@ class MainActivity : ComponentActivity() {
     /** Nothing is stored yet, so the TV asks which machines to watch. */
     private var needsSetup by mutableStateOf(false)
     private var store: ConfigStore? = null
+    private lateinit var themes: ThemeStore
 
     /** What the display is running on, for settings. Null in the mock build and before setup. */
     private var stored by mutableStateOf<StoredConfig?>(null)
@@ -119,6 +124,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // A wall display must never blank or sleep.
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        themes = ThemeStore(this)
+        themes.apply()
+        themeFromIntent(intent)
 
         if (BuildConfig.MOCK_DATA) {
             val machines = listOf(MockHostSource(elapsed) to "mock") + MockMachines.extra(BuildConfig.MOCK_MACHINES - 1, elapsed)
@@ -221,6 +229,9 @@ class MainActivity : ComponentActivity() {
                 onSignOut = { change(config.copy(githubToken = null, repos = emptyList()), null) },
                 onStartOver = ::startOver,
                 onBack = { overlay = Overlay.None },
+                themes = HiveThemes.all,
+                theme = ActiveTheme.theme,
+                onTheme = themes::choose,
             )
         }
     }
@@ -240,12 +251,28 @@ class MainActivity : ComponentActivity() {
         val store = store ?: return
         lifecycleScope.launch {
             withContext(Dispatchers.IO) { store.clear() }
+            themes.forget()
             session?.job?.cancel()
             session = null
             stored = null
             overlay = Overlay.None
             needsSetup = true
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        themeFromIntent(intent)
+    }
+
+    /**
+     * `adb shell am start -n com.blayter.mantel/.MainActivity --es theme <id>`
+     * switches theme and remembers it, so a theme can be tried on a TV or on
+     * the mock build, which has no settings. An unknown id is ignored.
+     */
+    private fun themeFromIntent(intent: Intent?) {
+        val id = intent?.getStringExtra(EXTRA_THEME) ?: return
+        HiveThemes.all.firstOrNull { it.id == id }?.let(themes::choose)
     }
 
     /**
@@ -408,6 +435,9 @@ class MainActivity : ComponentActivity() {
     private companion object {
         /** How long OK is held before settings opens. */
         const val HOLD_OK_MILLIS = 700L
+
+        /** The intent extra that switches theme; see [themeFromIntent]. */
+        const val EXTRA_THEME = "theme"
 
         val CONFIG_CHECK_EVERY: Duration = 5.seconds
 

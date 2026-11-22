@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "nightfall",
+  "name": "Nightfall",
+  "description": "Deep blue slate with a cool cyan accent, for a dark room.",
+  "author": "Mantel",
+  "layout": "hive",
+  "color": {
+    "ground": "#121A25",
+    "surface": "#1C2634",
+    "surfaceBorder": "#3A4A60",
+    "track": "#2C3A4D",
+    "text": "#E6ECF4",
+    "textBright": "#F7FAFF",
+    "textSecondary": "#D6DFEA",
+    "textMuted": "#B3C0D1",
+    "textDim": "#8D9BAE",
+    "textSoft": "#CCD6E3",
+    "textOnAmber": "#0C1420",
+    "amber": "#6CC8D8",
+    "amberDeep": "#3F95A6",
+    "amberSoft": "#A3E3EE",
+    "chartFill": "rgba(108,200,216,0.22)",
+    "kind": {
+      "runner": "#B4A6E8",
+      "database": "#9ED19A",
+      "job": "#E8E4DA"
+    },
+    "status": {
+      "inProgress": "#6CC8D8",
+      "success": "#9ED19A",
+      "trouble": "#FF8A7A",
+      "inactive": "#8D9BAE"
+    },
+    "cell": {
+      "base": "#1E2938",
+      "baseMissing": "#3A1E26",
+      "baseEnded": "#18202B",
+      "glow": "#1D5866",
+      "glowHot": "#26798A",
+      "strokeEnded": "#4A5668"
+    },
+    "focus": "#F7FAFF"
+  }
+}

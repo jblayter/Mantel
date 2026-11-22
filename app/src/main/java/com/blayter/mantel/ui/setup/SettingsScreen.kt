@@ -6,10 +6,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,14 +35,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.tv.material3.Text
 import com.blayter.mantel.domain.readyLines
+import com.blayter.mantel.ui.theme.HiveTheme
 import com.blayter.mantel.ui.theme.HiveTokens
 import com.blayter.mantel.ui.theme.HiveType
+import com.blayter.mantel.ui.theme.defaultThemeFor
+import com.blayter.mantel.ui.theme.layoutsOf
+import com.blayter.mantel.ui.theme.themesFor
 
 // Sizes from the "Settings" board that are not in tokens.json.
 private val RowPaddingX = 18.dp
 private val RowPaddingY = 12.dp
 private val RowGap = 14.dp
 private val CardButtonsTop = 6.dp
+
+// Not designed: the label column of the look card's two rows of buttons.
+private val ChoiceLabelWidth = 120.dp
 
 // Where the right-hand card starts so it lines up with the left one, under a two-line lead. See ReadyScreen.
 private val SideCardTop = 207.dp
@@ -76,6 +86,8 @@ sealed interface SettingsDeploys {
  * Machines on the left, deploys on the right, the same split as the
  * dashboard. Nothing here changes a machine or GitHub: it only changes what
  * this display stores. "Remove", "Sign out" and "Start over" ask once.
+ * Choosing a layout or theme changes the screen at once and needs no
+ * confirm: it is one press to go back.
  */
 @Composable
 fun SettingsScreen(
@@ -88,6 +100,9 @@ fun SettingsScreen(
     onSignOut: () -> Unit,
     onStartOver: () -> Unit,
     onBack: () -> Unit,
+    themes: List<HiveTheme> = emptyList(),
+    theme: HiveTheme? = null,
+    onTheme: (HiveTheme) -> Unit = {},
 ) {
     val back = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { back.requestFocus() } }
@@ -118,6 +133,49 @@ fun SettingsScreen(
                 SetupButton("Add a machine", onClick = onAddMachine)
             }
         }
+        if (theme != null && themes.size > 1) ThemeSettings(themes, theme, onTheme)
+    }
+}
+
+/**
+ * The look card: which layout the main screen uses, and which of that
+ * layout's color themes. Choosing a layout opens it on its own theme. What is
+ * in use is the filled button and is named in the heading too, so the choice
+ * is never shown by color alone.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ThemeSettings(themes: List<HiveTheme>, theme: HiveTheme, onTheme: (HiveTheme) -> Unit) {
+    val layouts = layoutsOf(themes)
+    val mine = themesFor(theme.layout, themes)
+    SetupCard("Look · ${theme.layout.label} layout · ${theme.name} theme") {
+        Quiet(theme.description)
+        if (layouts.size > 1) {
+            ChoiceRow("Layout") {
+                for (layout in layouts) {
+                    SetupButton(layout.label, main = layout == theme.layout) {
+                        if (layout != theme.layout) defaultThemeFor(layout, themes)?.let(onTheme)
+                    }
+                }
+            }
+        }
+        if (mine.size > 1) {
+            ChoiceRow("Theme") {
+                for (each in mine) SetupButton(each.name, main = each.id == theme.id) { onTheme(each) }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ChoiceRow(label: String, buttons: @Composable () -> Unit) {
+    Row(Modifier.padding(top = CardButtonsTop), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.width(ChoiceLabelWidth), style = HiveType.bodyBold, color = HiveTokens.Color.textMuted)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(HiveTokens.Space.s16),
+            verticalArrangement = Arrangement.spacedBy(HiveTokens.Space.s16),
+        ) { buttons() }
     }
 }
 

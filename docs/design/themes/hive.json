@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "hive",
+  "name": "Hive",
+  "description": "Warm walnut and amber, the approved Mantel look.",
+  "author": "Mantel",
+  "layout": "hive",
+  "color": {
+    "ground": "#2B1E15",
+    "surface": "#3A2A1E",
+    "surfaceBorder": "#5C4431",
+    "track": "#503B2B",
+    "text": "#F2E9DA",
+    "textBright": "#FFF8EA",
+    "textSecondary": "#EADFCB",
+    "textMuted": "#D2C0A6",
+    "textDim": "#AD9D87",
+    "textSoft": "#E0D3BD",
+    "textOnAmber": "#1A140C",
+    "amber": "#F0B45A",
+    "amberDeep": "#C98F3C",
+    "amberSoft": "#FFD08A",
+    "chartFill": "rgba(240,180,90,0.22)",
+    "kind": {
+      "runner": "#93BBD0",
+      "database": "#AFC487",
+      "job": "#EDE3D0"
+    },
+    "status": {
+      "inProgress": "#F0B45A",
+      "success": "#AFC487",
+      "trouble": "#FF8A68",
+      "inactive": "#AD9D87"
+    },
+    "cell": {
+      "base": "#3D2C20",
+      "baseMissing": "#3F2018",
+      "baseEnded": "#2F2118",
+      "glow": "#8F5F1F",
+      "glowHot": "#B4701C",
+      "strokeEnded": "#6B5442"
+    },
+    "focus": "#FFF8EA"
+  }
+}

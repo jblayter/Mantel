@@ -13,8 +13,16 @@ without one the deploys card is the mock and the header says "sample deploys".
 - `docs/design/DESIGN.md` — the approved design language ("Hive"). Follow it
   for every screen: warm walnut palette, honeycomb container cells,
   craftsman-style cards, Fraunces + DM Sans.
-- `docs/design/tokens.json` — colors, type scale, spacing, hex geometry. Build
-  the Compose theme from this file; do not invent new colors or sizes.
+- `docs/design/tokens.json` — type scale, spacing, hex geometry. Build the
+  Compose theme from this file; do not invent new sizes.
+- `docs/design/themes/` — the colors, one JSON file per theme; `hive.json` is
+  the approved Hive palette and the default. Each theme names the layout it is
+  for. `themes/README.md` is the theme format, the rules and the pull-request
+  checklist; read it before making or changing a theme. Do not invent colors
+  in code: every color is a role in `theme.schema.json`.
+- `docs/design/layouts/README.md` — the main-screen layouts (Hive, NOC, Neon),
+  the rules every layout keeps, what each color role paints in each, and how
+  to add a layout. Read it before touching `ui/layout` or adding a layout.
 - `docs/design/mockups/Hive.dc.html` — source of the approved main screen. It
   only renders inside the design canvas; use it as a reference for structure,
   sample data and the state logic in its script block.
@@ -35,14 +43,27 @@ without one the deploys card is the mock and the header says "sample deploys".
 
 One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 
-- `ui/theme` — `HiveTokens` is generated from `docs/design/tokens.json` on every
-  build by the `generateHiveTokens` task in `app/build.gradle.kts`; it is not
-  checked in. To change a color or size, edit tokens.json. `MantelTheme`
+- `ui/theme` — `HiveTokens` is generated from `docs/design/tokens.json` and
+  every theme in `docs/design/themes` on every build by the
+  `generateHiveTokens` task in `app/build.gradle.kts`; it is not checked in.
+  The task also checks each theme (every role, a dark ground, contrast at
+  least 4.5:1) and fails the build with every problem listed. To change a size,
+  edit tokens.json; a color, the theme file. `HiveTokens.Color` reads
+  `ActiveTheme`, which is Compose state, so a theme change redraws everything;
+  never copy a theme color into a `remember`, a top-level val or a cached
+  object. `ThemeStore` keeps the choice in plain preferences. `MantelTheme`
   overrides density so the screen is always 1920 dp wide: one design px is one
   dp, and "24dp body text" is 24 physical px on a 1080p panel.
 - `ui/hive`, `ui/panel` — the hex grid and cells; the count, host chart and
   deploy cards. Sizes that exist only in the mockup are named constants at the
   top of each file.
+- `ui/DashboardScreen` picks the layout from the theme in use: the Hive screen
+  is in that file, NOC and Neon in `ui/layout` (`NocDashboard`,
+  `NeonDashboard`, shared parts in `LayoutParts`). Every layout takes the same
+  parameters and draws inside `ScreenFrame` (`ui/HiveFrame.kt`, the margin and
+  drift). Their pure rules (`flagOf`, `severityCounts`, `deployRowsAtOnce`,
+  `litSegments`) are in `domain/LayoutRules.kt`. `MantelLayout` lists the
+  layouts and must match the `layout` enum in `theme.schema.json`.
 - `domain` — models and the pure rules (kinds, short names, sorting, warnings,
   formatting).
 - `data` — `HostSource` and `DeploySource` interfaces, and `DashboardRepository`,
@@ -117,6 +138,26 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   hours have passed, so both states can be seen.
 - Memory is in binary units, as Glances and `docker stats` show it (a 64 GB
   box reads 59 GB, a `4g` cap 4.0 GB).
+- Layouts are code and change only the main screen; themes are JSON and
+  change only colors. A theme names one layout, so each layout has its own
+  themes; every theme has every color role, so any theme works in any
+  layout. Dark grounds only. Adding a theme is adding a file; adding a color
+  role changes the schema, every theme and the code. Setup, settings,
+  loading and the machine shelf are Hive-shaped in every layout.
+- The owner asked for a NOC layout and a cyberpunk one with neon colors
+  (2026-11-22). They were built from that description, without a Claude
+  Design mockup: NOC shows every container in a table worst first, every
+  warning in an event list and every deploy in one table (no carousel);
+  Neon shows chamfered tiles, a CPU ring and a deploy log, in the system
+  monospace. Neither uses glow on text (it drew a box on the emulator), only
+  on drawn lines.
+- The look is chosen in settings (the Look card: a row of layouts, a row of
+  the chosen layout's themes, the one in use filled and named in the
+  heading; no confirm; a layout opens on the theme named after it) or with
+  `adb shell am start -n com.blayter.mantel/.MainActivity --es theme <id>`,
+  which also works on the mock build, where settings cannot open. "Start
+  over" goes back to Hive. The Look card was not designed; it reuses the
+  setup card and buttons.
 - When more warnings apply than there are lines (three, or two with the
   shelf), coral ones are listed first, each color in cell order. When all fit
   they stay in cell order. Owner's decision, 2026-11-19.
@@ -224,6 +265,14 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
   assumption that matches the mockup; check it against the real container list.
 - What time window the CPU, memory and load charts cover (now 60 samples).
 - The launcher banner is a placeholder, not designed art.
+- Themes and layouts: the Look card in settings is not designed in Claude
+  Design. The window background before the first frame is always Hive's
+  ground, so a non-default theme shows a brown flash at launch. Moss,
+  Nightfall, NOC and Neon were made in code, not reviewed by the owner.
+- NOC and Neon layouts: no mockup, not seen on the Fire TV. Not decided:
+  whether the machine shelf and the setup screens should take each layout's
+  shapes too, whether NOC should page deploys like Hive when there are many,
+  and whether a theme may name more than one layout.
 
 ## Working agreements
 

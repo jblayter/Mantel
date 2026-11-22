@@ -20,6 +20,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.tv.material3.Text
 import com.blayter.mantel.ui.theme.HiveTokens
 import com.blayter.mantel.ui.theme.HiveType
@@ -47,6 +48,21 @@ fun HiveFrame(
     dayNote: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    ScreenFrame {
+        Header(subtitle, showDay, dayNote)
+        content()
+    }
+}
+
+/**
+ * The part of the frame every layout shares: the overscan-safe margin and the
+ * slow drift that protects the panel. Each layout draws its own header in it.
+ */
+@Composable
+fun ScreenFrame(
+    gap: Dp = HiveTokens.Space.s24,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     val drift by rememberInfiniteTransition(label = "burn-in").animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -64,11 +80,9 @@ fun HiveFrame(
                 translationX = HiveTokens.Motion.driftPx[0].toPx() * drift
                 translationY = HiveTokens.Motion.driftPx[1].toPx() * drift
             },
-        verticalArrangement = Arrangement.spacedBy(HiveTokens.Space.s24),
-    ) {
-        Header(subtitle, showDay, dayNote)
-        content()
-    }
+        verticalArrangement = Arrangement.spacedBy(gap),
+        content = content,
+    )
 }
 
 @Composable

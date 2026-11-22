@@ -17,7 +17,8 @@ Treat them as a record of the decisions, not as a look to refine.
 ## Attached
 
 - `DESIGN.md`: the Hive design language and every rule. Read it first.
-- `tokens.json`: colors, type scale, spacing, hex geometry. Use only these.
+- `tokens.json`: type scale, spacing, hex geometry, and `themes/hive.json`:
+  the colors. Use only these.
 - `Hive.dc.html`: the approved main screen. This is the quality bar.
 - `State-*.dc.html`, `Deploys-*.dc.html`: approved setup, loading and failure
   states.

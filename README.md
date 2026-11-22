@@ -66,10 +66,11 @@ The last screen lists the machines and repositories. Press "Start".
 On the live display, press the Menu button on the remote, or hold OK for about a second.
 
 - **Machines:** see each machine and whether it is answering. Remove one, or choose "Add a machine" to search the network again.
+- **Look:** the main screen's layout (Hive, NOC or Neon) and its color theme. The display changes at once. See [Layouts and themes](#layouts-and-themes).
 - **Deploys:** see who is signed in and which repositories are read. "Choose repositories" brings back the QR code to the app's page on GitHub; repositories are chosen there, not on the TV. You can also sign in or sign out.
 - **Start over:** forgets everything this display stores and shows setup again.
 
-"Remove", "Sign out" and "Start over" ask once: press OK a second time to confirm. Signing out makes the TV forget the sign-in; to end the authorization itself, revoke it in your GitHub settings.
+"Start over" also goes back to the Hive layout and theme. "Remove", "Sign out" and "Start over" ask once: press OK a second time to confirm. Signing out makes the TV forget the sign-in; to end the authorization itself, revoke it in your GitHub settings.
 
 Changing repositories on GitHub reaches the display within 10 minutes. With more than 12 repositories, Mantel watches the 12 most recently pushed.
 
@@ -169,9 +170,57 @@ To try it without a TV, create an Android TV emulator with the `tv_1080p` device
 
 If you fork Mantel and want your own GitHub App for the sign-in, register one with "Enable Device Flow" ticked and read-only access to Actions and Metadata, then put its client ID and page in `app/src/main/java/com/blayter/mantel/data/github/GitHubAuth.kt`. The client ID is public; there is no client secret.
 
+## Layouts and themes
+
+The main screen comes in three **layouts**:
+
+| Hive (default) | NOC | Neon |
+| --- | --- | --- |
+| ![Hive](docs/design/layouts/previews/hive.png) | ![NOC](docs/design/layouts/previews/noc.png) | ![Neon](docs/design/layouts/previews/neon.png) |
+| Honeycomb cells and warm cards. | A network-operations wall: counts by severity, every container in a table, an event list. | Cyberpunk: neon-outlined tiles, a CPU ring, a deploy log. |
+
+Each layout has its own color **themes**: Hive comes with Hive, Moss and
+Nightfall; NOC and Neon with one each. Choose both in settings (the Look
+card), or from a computer with adb by the theme's id:
+
+```bash
+adb shell am start -n com.blayter.mantel/.MainActivity --es theme neon
+```
+
+Every layout keeps the same rules: readable from across the room with no
+interaction, status in words as well as color, no large bright areas, and
+read-only. [`docs/design/layouts/README.md`](docs/design/layouts/README.md)
+describes each layout and how to add one.
+
+A theme is one JSON file in [`docs/design/themes`](docs/design/themes) that
+names its layout, and every file there is built in. To make your own:
+
+- **By hand:** copy the theme of the layout you want
+  ([`nightfall.json`](docs/design/themes/nightfall.json),
+  [`noc.json`](docs/design/themes/noc.json) or
+  [`neon.json`](docs/design/themes/neon.json)) to
+  `docs/design/themes/<id>.json` and change the colors. The guide,
+  [`docs/design/themes/README.md`](docs/design/themes/README.md), explains
+  every color role and the rules a theme must meet (a dark ground and
+  readable text); [`theme.schema.json`](docs/design/themes/theme.schema.json)
+  lets your editor check the file as you type.
+- **With Claude Code or Claude Design:** paste
+  [`docs/design/themes/PROMPT.md`](docs/design/themes/PROMPT.md), name the
+  layout and describe the look you want.
+- **Check it:** open [`preview.html`](docs/design/themes/preview.html) in a
+  browser and load the file to see it on a sample of its layout, or run `./gradlew :app:generateHiveTokens`,
+  which lists every problem. Then try it on a TV or emulator with the adb
+  command above.
+
+New themes are welcome by pull request: see
+[Submit a theme](docs/design/themes/README.md#submit-a-theme). New layouts
+are code and start with an issue and a mockup: see
+[Add a new layout](docs/design/layouts/README.md#add-a-new-layout). Both are
+summed up in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Design
 
-The design language is called Hive: a warm walnut palette, honeycomb container cells, craftsman-style cards, and the Fraunces and DM Sans typefaces. It is written up in [`docs/design/DESIGN.md`](docs/design/DESIGN.md), with its values in [`docs/design/tokens.json`](docs/design/tokens.json) and the approved screens in [`docs/design/mockups`](docs/design/mockups).
+The design language is called Hive: a warm walnut palette, honeycomb container cells, craftsman-style cards, and the Fraunces and DM Sans typefaces. It is written up in [`docs/design/DESIGN.md`](docs/design/DESIGN.md), with its sizes in [`docs/design/tokens.json`](docs/design/tokens.json), its colors in [`docs/design/themes/hive.json`](docs/design/themes/hive.json) and the approved screens in [`docs/design/mockups`](docs/design/mockups).
 
 ## Licenses
 

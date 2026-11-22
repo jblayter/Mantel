@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Window background is the Hive "ground" token (generated from
-         tokens.json) so launch never flashes black. -->
+    <!-- Window background is the default theme's "ground" (generated from
+         docs/design/themes) so launch never flashes black. -->
     <style name="Theme.Mantel" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/hive_ground</item>
         <item name="android:windowFullscreen">true</item>

@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "noc",
+  "name": "NOC",
+  "description": "Graphite operations wall: a dense table, steady blue accent.",
+  "author": "Mantel",
+  "layout": "noc",
+  "color": {
+    "ground": "#0D1117",
+    "surface": "#151B23",
+    "surfaceBorder": "#2D3642",
+    "track": "#232B36",
+    "text": "#E3E8EF",
+    "textBright": "#F7F9FC",
+    "textSecondary": "#C9D1DB",
+    "textMuted": "#A3AEBB",
+    "textDim": "#7F8B99",
+    "textSoft": "#BCC6D2",
+    "textOnAmber": "#06121F",
+    "amber": "#4FB0FF",
+    "amberDeep": "#2A7BC4",
+    "amberSoft": "#93CDFF",
+    "chartFill": "rgba(79,176,255,0.20)",
+    "kind": {
+      "runner": "#7CC4FF",
+      "database": "#62D68A",
+      "job": "#D4B8FF"
+    },
+    "status": {
+      "inProgress": "#4FB0FF",
+      "success": "#4CCB7A",
+      "trouble": "#FF6E6E",
+      "inactive": "#7F8B99"
+    },
+    "cell": {
+      "base": "#171E27",
+      "baseMissing": "#2A1518",
+      "baseEnded": "#12171E",
+      "glow": "#1E4A73",
+      "glowHot": "#2A6AA3",
+      "strokeEnded": "#3E4955"
+    },
+    "focus": "#F7F9FC"
+  }
+}

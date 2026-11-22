@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mantel theme preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=DM+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+/* The page around the sample screen. The sample screen itself uses only the loaded theme. */
+:root { --page: #f4f1ec; --ink: #222; --line: #d8d2c8; --bad: #b3261e; --good: #2e7d32; }
+@media (prefers-color-scheme: dark) { :root { --page: #1b1b1b; --ink: #eee; --line: #3a3a3a; --bad: #ff8a80; --good: #81c784; } }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; background: var(--page); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+p { margin: 4px 0 12px; max-width: 70ch; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.bar button, .bar label { font: inherit; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; cursor: pointer; }
+.bar button[aria-pressed="true"] { border-color: currentColor; font-weight: 700; }
+textarea { width: 100%; min-height: 90px; font: 13px ui-monospace, monospace; background: transparent; color: inherit; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+.stage { width: 100%; aspect-ratio: 16 / 9; position: relative; overflow: hidden; border-radius: 6px; border: 1px solid var(--line); }
+.screen { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.problems { margin: 12px 0; padding: 0; list-style: none; }
+.problems li { color: var(--bad); }
+.problems li.ok { color: var(--good); }
+table { border-collapse: collapse; font-size: 13px; }
+td, th { border-bottom: 1px solid var(--line); padding: 3px 10px 3px 0; text-align: left; }
+td.bad { color: var(--bad); font-weight: 700; }
+details { margin-top: 12px; }
+
+/* ---- The sample screen, in design px (1 px = 1 dp on the TV). ---- */
+.screen { background: var(--ground); color: var(--text); font-family: 'DM Sans', system-ui, sans-serif; font-weight: 500; padding: 54px 96px; }
+.disp { font-family: 'Fraunces', Georgia, serif; font-variant-numeric: tabular-nums; font-weight: 700; }
+.hdr { display: flex; align-items: baseline; gap: 20px; height: 64px; }
+.hdr .word { font-size: 48px; color: var(--amber); }
+.hdr .sub { font-size: 26px; color: var(--textSecondary); }
+.hdr .right { margin-left: auto; display: flex; gap: 24px; align-items: baseline; }
+.hdr .clock { font-size: 52px; color: var(--textBright); font-weight: 500; }
+.cols { display: flex; gap: 32px; margin-top: 24px; }
+.hive { width: 980px; position: relative; height: 640px; }
+.chips { display: flex; gap: 10px; font-size: 26px; margin-bottom: 18px; align-items: center; }
+.chips .lead { color: var(--textSecondary); margin-right: 12px; }
+.chip { padding: 2px 18px; border-radius: 999px; background: var(--surface); color: var(--textSoft); }
+.chip.on { background: var(--amber); color: var(--textOnAmber); font-weight: 700; }
+.cell { position: absolute; width: 208px; height: 240px; }
+.cell svg { position: absolute; inset: 0; overflow: visible; }
+.cell .in { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.cell .k { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+.cell .n { font-size: 54px; color: var(--textBright); line-height: 1.05; }
+.cell .nm { font-size: 23px; font-weight: 700; color: var(--textBright); }
+.cell .m { font-size: 20px; color: var(--textSoft); }
+.side { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+.card { background: var(--surface); border: 3px solid var(--surfaceBorder); border-radius: 8px; padding: 20px 26px; }
+.card h3 { margin: 0 0 10px; font-size: 24px; font-weight: 700; color: var(--textMuted); }
+.stats { display: flex; gap: 20px; }
+.stats .card { flex: 1; padding-bottom: 0; overflow: hidden; }
+.stats .v { font-size: 54px; color: var(--textBright); }
+.stats .u { font-size: 24px; color: var(--textMuted); font-family: 'DM Sans', sans-serif; }
+.run { display: flex; gap: 16px; align-items: center; margin: 14px 0; font-size: 24px; }
+.run .t { font-size: 30px; font-weight: 700; color: var(--textBright); }
+.run .d { color: var(--textSecondary); }
+.run .when { margin-left: auto; color: var(--textMuted); }
+.prog { height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
+.prog i { display: block; height: 100%; width: 64%; background: repeating-linear-gradient(-45deg, var(--amber) 0 12px, var(--amberDeep) 12px 24px); }
+.warn { font-size: 24px; margin: 8px 0; }
+.btns { display: flex; gap: 16px; margin-top: 18px; }
+.btn { padding: 12px 26px; border-radius: 8px; background: var(--surface); border: 3px solid var(--surfaceBorder); font-weight: 700; font-size: 24px; color: var(--textSecondary); }
+.btn.main { background: var(--amber); border-color: var(--amber); color: var(--textOnAmber); }
+.btn.focus { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* NOC and Neon samples. Monospace, as on the TV. */
+.lay[hidden] { display: none; }
+.noc, .neon { font-family: ui-monospace, 'Droid Sans Mono', monospace; }
+.nhdr { display: flex; gap: 16px; align-items: center; height: 64px; font-size: 26px; color: var(--textMuted); }
+.nword { font-size: 40px; font-weight: 700; letter-spacing: 4px; color: var(--amber); }
+.xword { font-size: 44px; font-weight: 700; letter-spacing: 6px; color: var(--amber); }
+.nhost { flex: 1; } .nhost b { color: var(--textBright); }
+.pill { border: 2px solid; border-radius: 4px; padding: 2px 14px; font-weight: 700; font-size: 24px; color: var(--text); background: var(--surface); }
+.pill i { font-style: normal; }
+.nday { font-size: 24px; } .nclock { font-size: 44px; font-weight: 700; color: var(--textBright); }
+.ncols { display: flex; gap: 32px; margin-top: 20px; }
+.nside { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+.panel { background: var(--surface); border: 2px solid var(--surfaceBorder); border-radius: 4px; padding: 14px 20px; }
+.ptitle { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; letter-spacing: 2px; color: var(--textMuted); margin-bottom: 8px; }
+.ptitle span { letter-spacing: 0; font-weight: 500; font-size: 24px; }
+.ntable { width: 100%; border-collapse: collapse; font-size: 24px; color: var(--text); }
+.ntable td { padding: 9px 8px; border: 0; } .ntable td:nth-child(2) { color: var(--textBright); font-weight: 700; }
+.ntable .th td { color: var(--textDim); font-size: 22px; letter-spacing: 2px; font-weight: 700; }
+.ntable .z, .ev.z { background: var(--cell-base); }
+.ntiles { display: flex; gap: 16px; } .ntiles .panel { flex: 1; }
+.nnum { font-size: 48px; font-weight: 700; color: var(--textBright); } .nnum small { font-size: 24px; color: var(--textMuted); font-weight: 400; }
+.nsub { font-size: 24px; color: var(--textMuted); } .spark { width: 100%; height: 46px; display: block; }
+.ev { font-size: 24px; padding: 8px; color: var(--textSecondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ev strong { color: var(--textBright); }
+.ev b { display: inline-block; width: 130px; } .r { float: right; margin-left: 16px; color: var(--textMuted); }
+s.seg { display: inline-flex; gap: 3px; vertical-align: middle; text-decoration: none; }
+s.seg i { width: 8px; height: 12px; background: var(--track); } s.seg i.on { background: var(--textSoft); }
+s.seg.busy i.on { background: var(--status-inProgress); }
+s.seg.soft { display: flex; gap: 4px; margin: 6px 0 16px; } s.seg.soft i { flex: 1; height: 18px; } s.seg.soft i.on { background: var(--amberSoft); }
+.xhead { font-size: 24px; font-weight: 700; letter-spacing: 3px; color: var(--amber); margin-bottom: 16px; }
+.xgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.xtile { position: relative; height: 184px; padding: 14px; clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
+.xtile .k { font-size: 20px; font-weight: 700; letter-spacing: 1px; } .xtile .n { font-size: 44px; font-weight: 700; color: var(--textBright); }
+.xtile .nm { font-size: 24px; font-weight: 700; color: var(--textBright); } .xtile .m { font-size: 20px; color: var(--textSoft); }
+.xtile .bar { position: absolute; left: 14px; right: 14px; bottom: 14px; display: flex; gap: 3px; } .xtile .bar i { flex: 1; height: 8px; background: var(--track); }
+.xalert { font-size: 24px; color: var(--textSecondary); margin: 6px 0; }
+.xsm { font: 700 20px ui-monospace, monospace; } .xbig { font: 700 88px ui-monospace, monospace; }
+.xmeter { display: flex; justify-content: space-between; font-size: 24px; } .xmeter span { color: var(--textMuted); font-size: 20px; font-weight: 700; } .xmeter b { color: var(--textBright); }
+.xlog { flex: 1; background: var(--surface); border: 2px solid var(--surfaceBorder); padding: 14px 20px; font-size: 24px; color: var(--textMuted); }
+.xlog > div:not(.xhead) { display: flex; gap: 16px; padding: 8px 0; } .xlog strong { color: var(--textBright); }
+</style>
+</head>
+<body>
+<h1>Mantel theme preview</h1>
+<p>Load a theme file from this folder, or paste one, to see it on a sample of its layout (Hive, NOC or Neon) and run the build's checks
+(see <code>README.md</code>). The build is the final judge; this page is for trying colors without Android tools.
+Served over HTTP (for example <code>python3 -m http.server</code> in this folder), it also opens the themes beside it.</p>
+
+<div class="bar" id="bar">
+  <label>Load theme files <input type="file" id="files" accept=".json,application/json" multiple hidden></label>
+</div>
+<details>
+  <summary>Paste a theme</summary>
+  <textarea id="paste" placeholder='{ "id": "dusk", "name": "Dusk", ... }'></textarea>
+  <div class="bar"><button id="usePaste">Show pasted theme</button></div>
+</details>
+
+<ul class="problems" id="problems"></ul>
+
+<div class="stage" id="stage"><div class="screen" id="screen">
+<div class="lay" data-layout="hive">
+  <div class="hdr">
+    <span class="disp word">Mantel</span>
+    <span class="sub">ci-runner01 · 32 threads · 59 GB</span>
+    <span class="right"><span class="sub">Sunday · sample</span><span class="disp clock">8:44</span></span>
+  </div>
+  <div class="cols">
+    <div class="hive">
+      <div class="chips"><span class="lead">The hive · glow = cores</span><span class="chip on">Busiest</span><span class="chip">Memory</span><span class="chip">Name</span></div>
+      <div id="cells" style="position:relative;height:560px"></div>
+      <div class="warn"><span style="color:var(--status-trouble);font-weight:700">⚠ krakentv 1</span> is at 90% of its 4 GB memory cap</div>
+      <div class="warn"><span style="color:var(--amber);font-weight:700">⚠ rxflow 2</span> has held about 8 cores for 14 min</div>
+    </div>
+    <div class="side">
+      <div class="stats">
+        <div class="card"><h3>CPU</h3><span class="disp v">57</span><span class="u"> %</span>
+          <svg viewBox="0 0 200 60" width="100%" height="70" preserveAspectRatio="none" style="display:block;margin:0 -26px;width:calc(100% + 52px)">
+            <path d="M0 50 L20 44 L40 48 L60 30 L80 36 L100 12 L120 20 L140 8 L160 18 L180 10 L200 14 L200 60 L0 60Z" fill="var(--chartFill)"/>
+            <path d="M0 50 L20 44 L40 48 L60 30 L80 36 L100 12 L120 20 L140 8 L160 18 L180 10 L200 14" fill="none" stroke="var(--amber)" stroke-width="3" vector-effect="non-scaling-stroke"/>
+          </svg></div>
+        <div class="card"><h3>Memory</h3><span class="disp v">21.5</span><span class="u"> GB</span></div>
+        <div class="card"><h3>Load</h3><span class="disp v">8.8</span></div>
+      </div>
+      <div class="card">
+        <h3>Deploys · rxflow</h3>
+        <div class="run"><span style="color:var(--status-inProgress);font-size:30px">◌</span><div><div class="t">Deploy production</div><div class="d">Going out now · main</div></div><span class="when disp" style="font-size:44px;color:var(--amber)">3:17</span></div>
+        <div class="prog"><i></i></div>
+        <div class="run"><span style="color:var(--status-success);font-size:30px">✓</span><div><div class="t">CI</div><div class="d">Passed in 4m 41s</div></div><span class="when">9 min ago</span></div>
+        <div class="run"><span style="color:var(--status-trouble);font-size:30px">✕</span><div><div class="t">E2E</div><div class="d">Failed at <b style="color:var(--status-trouble)">browser tests</b></div></div><span class="when">31 min ago</span></div>
+        <div class="run"><span style="color:var(--status-inactive);font-size:30px">–</span><div><div class="t" style="color:var(--textDim)">Nightly</div><div class="d" style="color:var(--textDim)">Waiting</div></div><span class="when">2 h ago</span></div>
+      </div>
+      <div class="card">
+        <h3>Theme · <span id="themeName"></span></h3>
+        <div style="font-size:24px;color:var(--textMuted)" id="themeDesc"></div>
+        <div class="btns"><span class="btn main">Selected</span><span class="btn focus">Focused</span><span class="btn">Other</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOC: a sample of the layout in app/src/main/java/com/blayter/mantel/ui/layout/NocDashboard.kt -->
+<div class="lay noc" data-layout="noc" hidden>
+  <div class="nhdr">
+    <span class="nword">MANTEL</span><span class="nhost"><b>ci-runner01</b> 32 threads · 59 GB</span>
+    <span class="pill" style="border-color:var(--status-trouble)"><i style="color:var(--status-trouble)">●</i> 2 CRITICAL</span>
+    <span class="pill" style="border-color:var(--status-inProgress)"><i style="color:var(--status-inProgress)">▲</i> 1 BUSY</span>
+    <span class="pill" style="border-color:var(--status-success)"><i style="color:var(--status-success)">✓</i> 8 OK</span>
+    <span class="nday">SUN 22 NOV</span><span class="nclock">08:44:12</span>
+  </div>
+  <div class="ncols">
+    <div class="panel" style="width:1040px">
+      <div class="ptitle">CONTAINERS<span>10 running · 1 missing</span></div>
+      <table class="ntable">
+        <tr class="th"><td>STATUS</td><td>NAME</td><td>KIND</td><td>CPU</td><td>MEMORY</td><td>UP</td></tr>
+        <tr style="background:var(--cell-baseMissing)"><td style="color:var(--status-trouble)">▲ MISSING</td><td>reach 2</td><td style="color:var(--kind-runner)">runner</td><td>—</td><td>—</td><td>3m</td></tr>
+        <tr><td style="color:var(--status-trouble)">▲ NEAR CAP</td><td>krakentv 1</td><td style="color:var(--kind-runner)">runner</td><td>0.9 <s class="seg" data-n="6" data-on="1"></s></td><td style="color:var(--status-trouble)">3.6/4.0 GB</td><td>2h</td></tr>
+        <tr class="z"><td style="color:var(--status-inProgress)">▲ BUSY</td><td>rxflow 2</td><td style="color:var(--kind-runner)">runner</td><td>8.2 <s class="seg busy" data-n="6" data-on="5"></s></td><td>6.1 GB</td><td>14m</td></tr>
+        <tr><td style="color:var(--textDim)">○ ENDED</td><td style="color:var(--textDim)">quirky_banach</td><td style="color:var(--textDim)">database</td><td>—</td><td>—</td><td>23s</td></tr>
+        <tr class="z"><td style="color:var(--status-success)">● OK</td><td>magical_noyce</td><td style="color:var(--kind-database)">database</td><td>1.6 <s class="seg" data-n="6" data-on="2"></s></td><td>286 MB</td><td>13m</td></tr>
+        <tr><td style="color:var(--status-success)">● OK</td><td>e2e-web-1</td><td style="color:var(--kind-job)">job</td><td>1.7 <s class="seg" data-n="6" data-on="2"></s></td><td>1.1 GB</td><td>3m</td></tr>
+      </table>
+    </div>
+    <div class="nside">
+      <div class="ntiles">
+        <div class="panel"><div class="ptitle">CPU</div><div class="nnum">58<small> %</small></div><div class="nsub">18.7 cores</div><svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"><path d="M0 34 L30 30 L60 32 L90 20 L120 24 L150 8 L200 12 L200 40 L0 40Z" fill="var(--chartFill)"/><path d="M0 34 L30 30 L60 32 L90 20 L120 24 L150 8 L200 12" fill="none" stroke="var(--amber)" stroke-width="3" vector-effect="non-scaling-stroke"/></svg></div>
+        <div class="panel"><div class="ptitle">MEMORY</div><div class="nnum">21.5<small> GB</small></div><div class="nsub">36% used</div></div>
+        <div class="panel"><div class="ptitle">LOAD</div><div class="nnum">9.1</div><div class="nsub">avg 7.2 · 5.1</div></div>
+      </div>
+      <div class="panel"><div class="ptitle">EVENTS<span>3</span></div>
+        <div class="ev"><b style="color:var(--status-trouble)">CRIT</b> <strong>krakentv 1</strong> is at 90% of its 4 GB memory cap</div>
+        <div class="ev"><b style="color:var(--status-trouble)">CRIT</b> <strong>reach 2</strong> should be running but has been gone for 3 min</div>
+        <div class="ev"><b style="color:var(--status-inProgress)">BUSY</b> <strong>rxflow 2</strong> has held about 8 cores for 14 min</div>
+      </div>
+      <div class="panel"><div class="ptitle">DEPLOYS<span>past hour</span></div>
+        <div class="ev"><b style="color:var(--status-inProgress)">RUNNING</b> <strong>rxflow</strong> · Deploy production <span class="r" style="color:var(--status-inProgress)">3:17</span></div>
+        <div class="ev z"><b style="color:var(--status-success)">PASSED</b> <strong>rxflow</strong> · CI · main <span class="r">9 min ago</span></div>
+        <div class="ev"><b style="color:var(--status-trouble)">FAILED</b> <strong>reach</strong> · Deploy <span style="color:var(--status-trouble)">@ e2e-tests</span> <span class="r">6 min ago</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Neon: a sample of the layout in app/src/main/java/com/blayter/mantel/ui/layout/NeonDashboard.kt -->
+<div class="lay neon" data-layout="neon" hidden>
+  <div class="nhdr">
+    <span class="xword">MANTEL//</span><span class="nhost">&gt; <b style="color:var(--kind-runner)">ci-runner01</b> · 32T · 59G</span>
+    <span class="nday" style="color:var(--status-success);font-weight:700">■ SYS ONLINE</span><span class="nclock">08:44:12</span>
+  </div>
+  <div class="ncols">
+    <div style="width:980px">
+      <div class="xhead">// CONTAINERS&nbsp;&nbsp;10 LIVE · 1 MISSING</div>
+      <div class="xgrid" id="xgrid"></div>
+      <div class="xalert"><b style="color:var(--status-inProgress)">~~ rxflow 2</b> has held about 11 cores for 14 min</div>
+      <div class="xalert"><b style="color:var(--status-trouble)">!! krakentv 1</b> is at 90% of its 4 GB memory cap</div>
+    </div>
+    <div class="nside">
+      <div style="display:flex;gap:32px;align-items:center">
+        <svg width="320" height="320" viewBox="0 0 320 320">
+          <path d="M 69.5 250.5 A 128 128 0 1 1 250.5 250.5" fill="none" stroke="var(--track)" stroke-width="22"/>
+          <path d="M 69.5 250.5 A 128 128 0 1 1 288 160" fill="none" stroke="var(--amber)" stroke-width="36" opacity="0.22"/>
+          <path d="M 69.5 250.5 A 128 128 0 1 1 288 160" fill="none" stroke="var(--amber)" stroke-width="22"/>
+          <text x="160" y="125" text-anchor="middle" class="xsm" fill="var(--textMuted)">CPU</text>
+          <text x="160" y="200" text-anchor="middle" class="xbig" fill="var(--textBright)">70%</text>
+          <text x="160" y="240" text-anchor="middle" class="xsm" fill="var(--textMuted)">22.6/32 CORES</text>
+        </svg>
+        <div style="flex:1">
+          <div class="xmeter"><span>MEM</span><b>21.6/59 GB</b></div><s class="seg soft" data-n="24" data-on="9"></s>
+          <div class="xmeter"><span>LOAD</span><b>9.1 · 7.2 · 5.1</b></div><s class="seg soft" data-n="24" data-on="7"></s>
+        </div>
+      </div>
+      <div class="xlog">
+        <div class="xhead">// DEPLOY.LOG</div>
+        <div><b style="color:var(--status-inProgress)">[RUN ]</b> <strong>rxflow/Deploy production</strong> main <span class="r" style="color:var(--status-inProgress)">3:20</span></div>
+        <div><b style="color:var(--status-success)">[ OK ]</b> <strong>rxflow/CI</strong> 4m 41s <span class="r">9 min ago</span></div>
+        <div><b style="color:var(--status-trouble)">[FAIL]</b> <strong>reach/Deploy</strong> <span style="color:var(--status-trouble)">@ e2e-tests</span> <span class="r">6 min ago</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<details open>
+  <summary>Contrast (rule 4)</summary>
+  <table id="contrast"></table>
+</details>
+
+<script>
+"use strict";
+// The roles and the checks of the build (app/build.gradle.kts, generateHiveTokens). Keep them in step.
+const ROLES = {
+  ground: 1, surface: 1, surfaceBorder: 1, track: 1, text: 1, textBright: 1, textSecondary: 1, textMuted: 1,
+  textDim: 1, textSoft: 1, textOnAmber: 1, amber: 1, amberDeep: 1, amberSoft: 1, chartFill: 1,
+  kind: { runner: 1, database: 1, job: 1 },
+  status: { inProgress: 1, success: 1, trouble: 1, inactive: 1 },
+  cell: { base: 1, baseMissing: 1, baseEnded: 1, glow: 1, glowHot: 1, strokeEnded: 1 },
+  focus: 1,
+};
+const BACKGROUNDS = ["ground", "surface", "cell.base", "cell.baseMissing", "cell.baseEnded"];
+const FOREGROUNDS = ["text", "textBright", "textSecondary", "textMuted", "textDim", "textSoft", "amber",
+  "kind.runner", "kind.database", "kind.job", "status.inProgress", "status.success", "status.trouble", "status.inactive", "focus"];
+const MIN_CONTRAST = 4.5, MAX_GROUND_LUMINANCE = 0.05;
+const LAYOUTS = ["hive", "noc", "neon"];
+const HEX = /^#[0-9A-Fa-f]{6}$/, RGBA = /^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|1|0?\.\d+)\s*\)$/;
+
+function luminance(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => v / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function contrast(a, b) { const x = luminance(a), y = luminance(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+
+function check(theme, fileName) {
+  const out = [], flat = {};
+  if (!theme || typeof theme !== "object") return { out: ["not a JSON object"], flat };
+  if (fileName && theme.id !== fileName.replace(/\.json$/, "")) out.push(`"id" is "${theme.id}" but the file is ${fileName}; they must match`);
+  if (!/^[a-z][a-z0-9-]{1,23}$/.test(theme.id || "")) out.push(`"id" must be 2-24 lowercase letters, digits or dashes, starting with a letter`);
+  for (const [k, max] of [["name", 16], ["description", 80], ["author", 200]]) {
+    if (!theme[k]) out.push(`"${k}" is missing`); else if (theme[k].length > max) out.push(`"${k}" is ${theme[k].length} characters; at most ${max} fit`);
+  }
+  if (theme.layout !== undefined && !LAYOUTS.includes(theme.layout)) out.push(`"layout" is "${theme.layout}"; it must be one of ${LAYOUTS.join(", ")}`);
+  for (const k of Object.keys(theme)) if (!["$schema", "id", "name", "description", "author", "layout", "color"].includes(k)) out.push(`unknown key "${k}"`);
+  if (!theme.color) return { out: out.concat(`"color" is missing`), flat };
+  (function walk(prefix, want, got) {
+    for (const k of Object.keys(want)) {
+      const path = prefix + k, v = got ? got[k] : undefined;
+      if (typeof want[k] === "object") { if (v && typeof v === "object") walk(path + ".", want[k], v); else out.push(`color "${path}" is missing (a group)`); }
+      else if (v === undefined) out.push(`color "${path}" is missing`);
+      else if (path === "chartFill" ? !(HEX.test(v) || RGBA.test(v)) : !HEX.test(v)) out.push(`color "${path}" is "${v}"; use #RRGGBB`);
+      else flat[path] = v;
+    }
+    for (const k of Object.keys(got || {})) if (!(k in want)) out.push(`unknown color "${prefix}${k}"`);
+  })("", ROLES, theme.color);
+  if (out.length) return { out, flat };
+  const g = luminance(flat.ground);
+  if (g > MAX_GROUND_LUMINANCE) out.push(`"ground" ${flat.ground} is too light for a screen that is on all day (luminance ${g.toFixed(3)}, at most ${MAX_GROUND_LUMINANCE})`);
+  for (const bg of BACKGROUNDS) for (const fg of FOREGROUNDS) {
+    const r = contrast(flat[fg], flat[bg]);
+    if (r < MIN_CONTRAST) out.push(`${fg} ${flat[fg]} on ${bg} ${flat[bg]} has contrast ${r.toFixed(2)}:1; it needs at least ${MIN_CONTRAST}:1`);
+  }
+  const r = contrast(flat.textOnAmber, flat.amber);
+  if (r < MIN_CONTRAST) out.push(`textOnAmber on amber has contrast ${r.toFixed(2)}:1; it needs at least ${MIN_CONTRAST}:1`);
+  return { out, flat };
+}
+
+// Pointy-top hexagon in a 208 x 240 box.
+const HEX_POINTS = "104,2 206,61 206,179 104,238 2,179 2,61";
+const CELLS = [
+  { x: 0, y: 0, kind: "MISSING", stroke: "status.trouble", fill: "cell.baseMissing", dash: true, n: "—", nm: "reach 2", m: "gone 3 min", mColor: "status.trouble" },
+  { x: 218, y: 0, kind: "RUNNER · 14m", stroke: "kind.runner", fill: "cell.base", glow: 1, hot: true, n: "8.2", nm: "rxflow 2", m: "busy 14 min" },
+  { x: 436, y: 0, kind: "RUNNER · 4m", stroke: "kind.runner", fill: "cell.base", glow: 0.42, n: "2.1", nm: "rxflow 1", m: "2.8 GB" },
+  { x: 654, y: 0, kind: "JOB · 3m", stroke: "kind.job", fill: "cell.base", glow: 0.38, n: "1.7", nm: "e2e-web-1", m: "1.1 GB" },
+  { x: 109, y: 189, kind: "DATABASE · 13m", stroke: "kind.database", fill: "cell.base", glow: 0.36, n: "1.6", nm: "magical_noyce", m: "286 MB" },
+  { x: 327, y: 189, kind: "RUNNER · 2h", stroke: "status.trouble", fill: "cell.base", glow: 0.27, wide: true, n: "0.9", nm: "krakentv 1", m: "3.6 of 4.0 GB", mColor: "status.trouble" },
+  { x: 545, y: 189, kind: "ENDED", stroke: "cell.strokeEnded", fill: "cell.baseEnded", dash: true, dim: true, n: "—", nm: "quirky_banach", m: "23 s ago" },
+];
+function v(path) { return `var(--${path.replace(".", "-")})`; }
+function drawCells() {
+  document.getElementById("cells").innerHTML = CELLS.map((c, i) => `
+    <div class="cell" style="left:${c.x}px;top:${c.y}px">
+      <svg viewBox="0 0 208 240">
+        <defs><clipPath id="h${i}"><polygon points="${HEX_POINTS}"/></clipPath></defs>
+        <polygon points="${HEX_POINTS}" fill="${v(c.fill)}"/>
+        ${c.glow ? `<rect clip-path="url(#h${i})" x="0" y="${240 - 240 * c.glow}" width="208" height="240" fill="${c.hot ? v("cell.glowHot") : v("cell.glow")}"/>` : ""}
+        <polygon points="${HEX_POINTS}" fill="none" stroke="${v(c.stroke)}" stroke-width="${c.wide ? 6 : 4}" ${c.dash ? 'stroke-dasharray="12 10"' : ""}/>
+      </svg>
+      <div class="in">
+        <div class="k" style="color:${v(c.stroke === "cell.strokeEnded" ? "textDim" : c.stroke)}">${c.kind}</div>
+        <div class="disp n" style="${c.dim ? "color:var(--textDim)" : ""}">${c.n}</div>
+        <div class="nm" style="${c.dim ? "color:var(--textDim)" : ""}">${c.nm}</div>
+        <div class="m" style="${c.mColor ? `color:${v(c.mColor)};font-weight:700` : c.dim ? "color:var(--textDim)" : ""}">${c.m}</div>
+      </div>
+    </div>`).join("");
+}
+
+function show(theme, fileName) {
+  const { out, flat } = check(theme, fileName);
+  const list = document.getElementById("problems");
+  list.innerHTML = out.length
+    ? out.map(p => `<li>${p.replace(/</g, "&lt;")}</li>`).join("")
+    : `<li class="ok">${(theme.name || "This theme")} passes every check the build runs. Rules 5 to 8 are for your eye.</li>`;
+  const screen = document.getElementById("screen");
+  for (const [path, value] of Object.entries(flat)) screen.style.setProperty(`--${path.replace(".", "-")}`, value);
+  const layout = LAYOUTS.includes(theme.layout) ? theme.layout : "hive";
+  document.querySelectorAll(".lay").forEach(el => { el.hidden = el.dataset.layout !== layout; });
+  document.getElementById("themeName").textContent = theme.name || "";
+  document.getElementById("themeDesc").textContent = theme.description || "";
+  const rows = [];
+  if (flat.ground) for (const fg of FOREGROUNDS.concat("textOnAmber")) {
+    const bgs = fg === "textOnAmber" ? ["amber"] : BACKGROUNDS;
+    rows.push(`<tr><th>${fg}</th>${bgs.map(bg => { const r = flat[fg] && flat[bg] ? contrast(flat[fg], flat[bg]) : 0;
+      return `<td class="${r < MIN_CONTRAST ? "bad" : ""}">${r.toFixed(2)} on ${bg}</td>`; }).join("")}</tr>`);
+  }
+  document.getElementById("contrast").innerHTML = rows.join("");
+}
+
+const loaded = [];
+function addTheme(theme, fileName) {
+  loaded.push({ theme, fileName });
+  const b = document.createElement("button");
+  b.textContent = theme.name || fileName || "pasted";
+  b.onclick = () => { document.querySelectorAll("#bar button").forEach(x => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); show(theme, fileName); };
+  document.getElementById("bar").appendChild(b);
+  b.click();
+}
+
+document.getElementById("files").addEventListener("change", async e => {
+  for (const f of e.target.files) {
+    try { addTheme(JSON.parse(await f.text()), f.name); }
+    catch (err) { document.getElementById("problems").innerHTML = `<li>${f.name} is not valid JSON: ${err.message}</li>`; }
+  }
+});
+document.getElementById("usePaste").addEventListener("click", () => {
+  try { addTheme(JSON.parse(document.getElementById("paste").value), null); }
+  catch (err) { document.getElementById("problems").innerHTML = `<li>The pasted text is not valid JSON: ${err.message}</li>`; }
+});
+
+function fit() {
+  const stage = document.getElementById("stage");
+  document.getElementById("screen").style.transform = `scale(${stage.clientWidth / 1920})`;
+}
+addEventListener("resize", fit);
+// Segment bars: data-n segments, data-on of them lit.
+document.querySelectorAll("s.seg").forEach(el => {
+  el.innerHTML = Array.from({ length: +el.dataset.n }, (_, i) => `<i class="${i < +el.dataset.on ? "on" : ""}"></i>`).join("");
+});
+// Neon tiles: an outline is the tile's background showing round an inset fill, so the chamfers keep it.
+const XTILES = [
+  { k: "MISSING · 3m", c: "status.trouble", f: "cell.baseMissing", n: "--", nm: "reach 2", m: "", on: 0 },
+  { k: "BUSY · RUNNER", c: "kind.runner", kc: "status.inProgress", f: "cell.base", n: "11.3", nm: "rxflow 2", m: "6.1 GB", on: 10 },
+  { k: "RUNNER · 4m", c: "kind.runner", f: "cell.base", n: "2.9", nm: "rxflow 1", m: "2.8 GB", on: 5 },
+  { k: "JOB · 3m", c: "kind.job", f: "cell.base", n: "2.1", nm: "e2e-web-1", m: "1.1 GB", on: 4 },
+  { k: "DATABASE · 13m", c: "kind.database", f: "cell.base", n: "1.7", nm: "magical_noyce", m: "286 MB", on: 4 },
+  { k: "RUNNER · 2h", c: "status.trouble", kc: "kind.runner", f: "cell.base", n: "0.9", nm: "krakentv 1", m: "▲ 3.6 of 4.0 GB", mc: "status.trouble", on: 3 },
+  { k: "DATABASE · 6d", c: "kind.database", f: "cell.base", n: "0.8", nm: "postgres-e2e", m: "412 MB", on: 2 },
+  { k: "ENDED · 26s", c: "cell.strokeEnded", kc: "textDim", f: "cell.baseEnded", n: "--", nm: "quirky_banach", m: "", on: 0, dim: true },
+];
+document.getElementById("xgrid").innerHTML = XTILES.map(t => `
+  <div class="xtile" style="background:${v(t.c)};${t.k.startsWith("MISSING") || t.dim ? "opacity:.9" : ""}">
+    <div style="position:absolute;inset:3px;background:${v(t.f)};clip-path:inherit"></div>
+    <div style="position:relative">
+      <div class="k" style="color:${v(t.kc || t.c)}">${t.k}</div>
+      <div class="n" style="${t.dim ? "color:var(--textDim)" : ""}">${t.n}</div>
+      <div class="nm" style="${t.dim ? "color:var(--textDim)" : ""}">${t.nm}</div>
+      <div class="m" style="${t.mc ? `color:${v(t.mc)}` : ""}">${t.m || "&nbsp;"}</div>
+    </div>
+    <div class="bar">${Array.from({ length: 10 }, (_, i) => `<i style="${i < t.on ? `background:${v(t.c)}` : ""}"></i>`).join("")}</div>
+  </div>`).join("");
+drawCells(); fit();
+
+// Over HTTP, open the themes beside this page.
+(async () => {
+  for (const name of ["neon.json", "noc.json", "nightfall.json", "moss.json", "hive.json"]) {
+    try { const r = await fetch(name); if (r.ok) addTheme(await r.json(), name); } catch (e) { /* opened as a file: load by hand */ }
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "moss",
+  "name": "Moss",
+  "description": "Forest green with a straw-gold accent.",
+  "author": "Mantel",
+  "layout": "hive",
+  "color": {
+    "ground": "#161E18",
+    "surface": "#212C23",
+    "surfaceBorder": "#3F5242",
+    "track": "#30402F",
+    "text": "#E9EEDF",
+    "textBright": "#F8FBF0",
+    "textSecondary": "#DCE3CF",
+    "textMuted": "#BCC7AC",
+    "textDim": "#949F86",
+    "textSoft": "#D2DBC4",
+    "textOnAmber": "#141A0E",
+    "amber": "#D9C46A",
+    "amberDeep": "#A8953E",
+    "amberSoft": "#EEDD94",
+    "chartFill": "rgba(217,196,106,0.22)",
+    "kind": {
+      "runner": "#93BBD0",
+      "database": "#A9D39A",
+      "job": "#EDE6D0"
+    },
+    "status": {
+      "inProgress": "#D9C46A",
+      "success": "#A9D39A",
+      "trouble": "#FF8A68",
+      "inactive": "#949F86"
+    },
+    "cell": {
+      "base": "#223025",
+      "baseMissing": "#3D221B",
+      "baseEnded": "#1B241D",
+      "glow": "#5A6524",
+      "glowHot": "#7C7620",
+      "strokeEnded": "#4E5B4C"
+    },
+    "focus": "#F8FBF0"
+  }
+}
