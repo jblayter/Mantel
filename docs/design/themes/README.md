@@ -14,8 +14,10 @@ registry to edit and no Kotlin to write.
 | --- | --- |
 | `hive.json` | The approved Hive palette and the default theme. The reference for every role. |
 | `moss.json`, `nightfall.json` | Example themes for the Hive layout. |
-| `noc.json` | The NOC layout's theme: graphite and blue. |
-| `neon.json` | The Neon layout's theme: magenta, cyan and acid on near black. |
+| `noc.json` | The NOC layout's own theme: graphite and blue. |
+| `noc-amber.json`, `noc-contrast.json`, `noc-solar.json` | More NOC themes: Amber Ops, High Contrast, Solar. |
+| `neon.json` | The Neon layout's own theme: magenta, cyan and acid on near black. |
+| `neon-synthwave.json`, `neon-ice.json`, `neon-phosphor.json` | More Neon themes: Synthwave, Ice, Phosphor. |
 | `theme.schema.json` | The format, as a JSON Schema. The build reads the color roles from it. |
 | `preview.html` | Open in a browser, load or paste a theme, see it on a sample of its layout with its checks. No Android tools needed. |
 | `PROMPT.md` | A prompt that has Claude Design or Claude Code make a theme in this format. |

@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "noc-solar",
+  "name": "Solar",
+  "description": "Deep teal with warm yellow, after the Solarized palette.",
+  "author": "Mantel",
+  "layout": "noc",
+  "color": {
+    "ground": "#00202A",
+    "surface": "#032B36",
+    "surfaceBorder": "#1E4E5C",
+    "track": "#0D3A47",
+    "text": "#E9E4D2",
+    "textBright": "#FDF6E3",
+    "textSecondary": "#D9D3BF",
+    "textMuted": "#B3B4A4",
+    "textDim": "#93A1A1",
+    "textSoft": "#CFCBB8",
+    "textOnAmber": "#1A1400",
+    "amber": "#E8C547",
+    "amberDeep": "#B58900",
+    "amberSoft": "#F3DC85",
+    "chartFill": "rgba(232,197,71,0.18)",
+    "kind": {
+      "runner": "#7FC4F0",
+      "database": "#B5D35A",
+      "job": "#E9A6E0"
+    },
+    "status": {
+      "inProgress": "#E8C547",
+      "success": "#B5D35A",
+      "trouble": "#FF7A63",
+      "inactive": "#93A1A1"
+    },
+    "cell": {
+      "base": "#05303C",
+      "baseMissing": "#3A1A1A",
+      "baseEnded": "#022530",
+      "glow": "#3C5A2E",
+      "glowHot": "#5A6E1E",
+      "strokeEnded": "#2E5A66"
+    },
+    "focus": "#FDF6E3"
+  }
+}

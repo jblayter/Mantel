@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "neon-ice",
+  "name": "Ice",
+  "description": "Cold cyan and violet on blue-black.",
+  "author": "Mantel",
+  "layout": "neon",
+  "color": {
+    "ground": "#04090F",
+    "surface": "#0A1420",
+    "surfaceBorder": "#24405E",
+    "track": "#13263A",
+    "text": "#E6F4FF",
+    "textBright": "#F7FCFF",
+    "textSecondary": "#CBE3F5",
+    "textMuted": "#9FBEDA",
+    "textDim": "#7E9DB9",
+    "textSoft": "#BCD6EC",
+    "textOnAmber": "#001420",
+    "amber": "#5CE1FF",
+    "amberDeep": "#2A9BBF",
+    "amberSoft": "#A6EEFF",
+    "chartFill": "rgba(92,225,255,0.18)",
+    "kind": {
+      "runner": "#B79BFF",
+      "database": "#B8FF3C",
+      "job": "#FFE14D"
+    },
+    "status": {
+      "inProgress": "#5CE1FF",
+      "success": "#B8FF3C",
+      "trouble": "#FF5A6E",
+      "inactive": "#7E9DB9"
+    },
+    "cell": {
+      "base": "#0C1726",
+      "baseMissing": "#2A0E16",
+      "baseEnded": "#070F18",
+      "glow": "#13405C",
+      "glowHot": "#1A5E86",
+      "strokeEnded": "#33506E"
+    },
+    "focus": "#F7FCFF"
+  }
+}

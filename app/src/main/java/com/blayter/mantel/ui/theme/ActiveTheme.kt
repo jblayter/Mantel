@@ -22,9 +22,9 @@ fun themeById(id: String?, themes: List<HiveTheme> = HiveThemes.all): HiveTheme 
 /** The layouts that have at least one theme, in the order [MantelLayout] lists them. */
 fun layoutsOf(themes: List<HiveTheme> = HiveThemes.all): List<MantelLayout> = themes.map { it.layout }.distinct().sortedBy { it.ordinal }
 
-/** The themes made for [layout], in the order of [themes]. */
+/** The themes made for [layout]: the one named after the layout first, then in the order of [themes]. */
 fun themesFor(layout: MantelLayout, themes: List<HiveTheme> = HiveThemes.all): List<HiveTheme> =
-    themes.filter { it.layout == layout }
+    themes.filter { it.layout == layout }.sortedBy { if (it.id == layout.id) 0 else 1 }
 
 /**
  * The theme a layout opens on when it is chosen: the one whose id is the

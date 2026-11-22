@@ -268,7 +268,10 @@ One module, `:app`, application ID `com.blayter.mantel`, minSdk 26.
 - Themes and layouts: the Look card in settings is not designed in Claude
   Design. The window background before the first frame is always Hive's
   ground, so a non-default theme shows a brown flash at launch. Moss,
-  Nightfall, NOC and Neon were made in code, not reviewed by the owner.
+  Nightfall, NOC and Neon were made in code, not reviewed by the owner;
+  so were the extra NOC themes (Amber Ops, High Contrast, Solar) and Neon
+  themes (Synthwave, Ice, Phosphor), asked for by the owner on 2026-11-22.
+  Settings lists a layout's own theme first, then the rest by name.
 - NOC and Neon layouts: no mockup, not seen on the Fire TV. Not decided:
   whether the machine shelf and the setup screens should take each layout's
   shapes too, whether NOC should page deploys like Hive when there are many,

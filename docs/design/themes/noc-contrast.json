@@ -1,0 +1,45 @@
+{
+  "$schema": "theme.schema.json",
+  "id": "noc-contrast",
+  "name": "High Contrast",
+  "description": "Black, white and bold signal colors, for far away or low vision.",
+  "author": "Mantel",
+  "layout": "noc",
+  "color": {
+    "ground": "#000000",
+    "surface": "#0A0A0A",
+    "surfaceBorder": "#6A6A6A",
+    "track": "#2A2A2A",
+    "text": "#FFFFFF",
+    "textBright": "#FFFFFF",
+    "textSecondary": "#F0F0F0",
+    "textMuted": "#D6D6D6",
+    "textDim": "#B0B0B0",
+    "textSoft": "#E6E6E6",
+    "textOnAmber": "#000000",
+    "amber": "#FFD400",
+    "amberDeep": "#B89A00",
+    "amberSoft": "#FFE866",
+    "chartFill": "rgba(255,212,0,0.20)",
+    "kind": {
+      "runner": "#5CC8FF",
+      "database": "#4DFF88",
+      "job": "#FF9CF2"
+    },
+    "status": {
+      "inProgress": "#FFD400",
+      "success": "#4DFF88",
+      "trouble": "#FF5A4D",
+      "inactive": "#B0B0B0"
+    },
+    "cell": {
+      "base": "#141414",
+      "baseMissing": "#330A08",
+      "baseEnded": "#080808",
+      "glow": "#3D3400",
+      "glowHot": "#5C4E00",
+      "strokeEnded": "#5A5A5A"
+    },
+    "focus": "#FFFFFF"
+  }
+}
